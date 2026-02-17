@@ -25,6 +25,8 @@ public class Package : MonoBehaviour
     [SerializeField] private float m_RotationSpeed = 50f;
     
     private PackageSpawner m_Spawner;
+    private PackageSpawnerV2 m_SpawnerV2;
+
     private GameManager m_GameManager;
     private Player m_Player;
     
@@ -80,6 +82,12 @@ public class Package : MonoBehaviour
         m_GameManager = gameManager;
     }
     
+    // Called by PackageSpawnerV2 to set the reference
+    public void SetSpawner(PackageSpawnerV2 spawner, GameManager gameManager)
+    {
+        m_SpawnerV2 = spawner;
+        m_GameManager = gameManager;
+    }
     public PackageType GetPackageType()
     {
         return m_PackageType;
