@@ -1,10 +1,14 @@
-using System;
 using UnityEngine;
 
+/// <summary>
+/// Collectible package that can be picked up by the player or destroyed by enemies.
+/// Supports a claim system so enemies coordinate and don't double-target the same package.
+/// Notifies the spawner on collection or destruction so the active list stays accurate.
+/// </summary>
 public class Package : MonoBehaviour
 {
-    public enum PackageType 
-    { 
+    public enum PackageType
+    {
         Standard,
         Rare,
         Unique
@@ -13,23 +17,29 @@ public class Package : MonoBehaviour
     [Header("Package Properties")]
     [Tooltip("Select the type of package.")]
     [SerializeField] private PackageType m_PackageType = PackageType.Standard;
-    
+
     [Header("Visual Settings")]
-    [Tooltip("Particle effect to emit when this package is collected.")]
+    [Tooltip("Particle effect to emit when this package is collected by the player.")]
     [SerializeField] private ParticleSystem m_CollectFX;
-    
+
+    [Tooltip("Particle effect to emit when this package is destroyed by an enemy.")]
+    [SerializeField] private ParticleSystem m_DestroyFX;
+
     [Tooltip("The visual model of the package (will rotate automatically).")]
     [SerializeField] private GameObject m_PackageModel;
 
     [Tooltip("Rotation speed in degrees per second.")]
     [SerializeField] private float m_RotationSpeed = 50f;
-    
-    private PackageSpawner m_Spawner;
-    private PackageSpawnerV2 m_SpawnerV2;
 
+    // References set by spawner
+    private PackageSpawner m_Spawner;
     private GameManager m_GameManager;
-    private Player m_Player;
-    
+
+    // Claim state — used by enemy coordination system
+    private bool m_IsClaimed = false;
+
+    // Guard against double destruction (player collects same frame enemy reaches it)
+    private bool m_IsBeingProcessed = false;
     private bool _rotate = true;
     
     private void Update()
@@ -42,52 +52,81 @@ public class Package : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (m_IsBeingProcessed) return;
+
         if (other.TryGetComponent(out Player player))
         {
-            m_Player = player;
-            _rotate = false;
-            CollectPackage();
+            CollectPackage(player);
         }
     }
 
-    private void CollectPackage()
-    {
-        if (m_Player != null)
-        {
-            m_Player.OnPackageCollected();
-        }
-        
-        if (m_Spawner != null)
-        {
-            m_Spawner.OnPackageCollected();
-        }
+    // ==================== COLLECTION (by player) ====================
 
-        if (m_GameManager != null)
-        {
-            m_GameManager.RegisterDelivery();
-        }
+    private void CollectPackage(Player player)
+    {
+        m_IsBeingProcessed = true;
+
+        player.OnPackageCollected();
+        m_Spawner?.OnPackageCollected(gameObject);
+        m_GameManager?.RegisterDelivery();
 
         if (m_CollectFX != null)
-        {
             Instantiate(m_CollectFX, transform.position, Quaternion.identity);
-        }
-        
-        Destroy(gameObject,1f);
+
+        Destroy(gameObject, 0.1f);
     }
 
-    // Called by PackageSpawner to set the reference
+    // ==================== DESTRUCTION (by enemy) ====================
+
+    /// <summary>
+    /// Called by EnemyDamage when an enemy reaches this package.
+    /// The package owns its own death so lifecycle logic stays centralised here,
+    /// mirroring how TankHealth.OnDeath() is kept private in Tanks.
+    /// </summary>
+    public void DestroyPackage()
+    {
+        if (m_IsBeingProcessed) return;
+        m_IsBeingProcessed = true;
+
+        m_Spawner?.OnPackageCollected(gameObject);
+
+        if (m_DestroyFX != null)
+            Instantiate(m_DestroyFX, transform.position, Quaternion.identity);
+
+        Destroy(gameObject, 0.1f);
+    }
+
+    // ==================== CLAIM SYSTEM ====================
+
+    /// <summary>
+    /// Mark this package as claimed by an enemy so other enemies skip it.
+    /// Called by EnemySpawner during spawn-time coordination.
+    /// </summary>
+    public void Claim()
+    {
+        m_IsClaimed = true;
+    }
+
+    /// <summary>
+    /// Returns whether this package has already been claimed by an enemy.
+    /// Used by enemies searching for a fallback target after their assigned one is gone.
+    /// </summary>
+    public bool IsClaimed()
+    {
+        return m_IsClaimed;
+    }
+
+    // ==================== SETUP ====================
+
+    /// <summary>
+    /// Called by PackageSpawner immediately after instantiation to wire up references.
+    /// </summary>
     public void SetSpawner(PackageSpawner spawner, GameManager gameManager)
     {
         m_Spawner = spawner;
         m_GameManager = gameManager;
     }
-    
-    // Called by PackageSpawnerV2 to set the reference
-    public void SetSpawner(PackageSpawnerV2 spawner, GameManager gameManager)
-    {
-        m_SpawnerV2 = spawner;
-        m_GameManager = gameManager;
-    }
+
     public PackageType GetPackageType()
     {
         return m_PackageType;
