@@ -5,14 +5,22 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    // Which state the game is currently in
-    public enum GameState
-    {
-        MainMenu,
-        Game
-    }
-    
     public static GameManager instance;
+    
+    private GameState m_CurrentState; // State the game is currently in
+    private WaitForSeconds m_StartWait;
+    private WaitForSeconds m_EndWait;
+    public float m_StartDelay = 3f;             // The delay between the start of RoundStarting and RoundPlaying phases.
+    public float m_EndDelay = 3f;               // The delay between the end of RoundPlaying and RoundEnding phases.
+    
+    [Header("Delivery Mission Settings")]
+    public int m_TotalPackagesToDeliver = 10;       // Total packages needed to complete mission
+    public float m_MissionTimeLimit = 300f;         // 5 minutes mission time limit
+    
+    private int m_PackagesDelivered = 0;            // Current number of packages delivered
+    public float m_MissionTimer = 0f;              // Current mission elapsed time
+
+    public MissionHUD HUD;
     
     private void Awake()
     {
@@ -31,21 +39,6 @@ public class GameManager : MonoBehaviour
             return;
         }
     }
-    
-    private GameState m_CurrentState;
-    private WaitForSeconds m_StartWait;
-    private WaitForSeconds m_EndWait;
-    public float m_StartDelay = 3f;             // The delay between the start of RoundStarting and RoundPlaying phases.
-    public float m_EndDelay = 3f;               // The delay between the end of RoundPlaying and RoundEnding phases.
-    
-    [Header("Delivery Mission Settings")]
-    public int m_TotalPackagesToDeliver = 10;       // Total packages needed to complete mission
-    public float m_MissionTimeLimit = 300f;         // 5 minutes mission time limit
-    
-    private int m_PackagesDelivered = 0;            // Current number of packages delivered
-    public float m_MissionTimer = 0f;              // Current mission elapsed time
-
-    public MissionHUD HUD;
     private void Start()
     {
         StartGame();
@@ -78,10 +71,10 @@ public class GameManager : MonoBehaviour
         
         StartCoroutine (GameLoop());
     }
-
     
-    // This is called from start and will run each phase of the game one after another.
-
+    /// <summary>
+    /// This is called from start and will run each phase of the game one after another.
+    /// </summary>
     private IEnumerator GameLoop()
     {
         // Start the mission

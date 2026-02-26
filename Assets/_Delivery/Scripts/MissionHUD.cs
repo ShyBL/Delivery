@@ -11,10 +11,10 @@ public class MissionHUD : MonoBehaviour
     [Tooltip("Text showing time remaining (e.g., '2:34')")]
     public TextMeshProUGUI m_TimeRemainingText;
         
-    [Tooltip("Optional: Progress bar showing package completion")]
+    [Tooltip("Progress bar showing package completion")]
     public Slider m_ProgressBar;
         
-    [Tooltip("Optional: Image that fills as progress increases")]
+    [Tooltip("Image that fills as progress increases")]
     public Image m_ProgressFillImage;
 
     [Header("Color Settings")]

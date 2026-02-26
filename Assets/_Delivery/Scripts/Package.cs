@@ -63,8 +63,7 @@ public class Package : MonoBehaviour
 
         player.OnPackageCollected();
         m_Spawner?.OnPackageCollected(gameObject);
-        m_GameManager?.RegisterDelivery();
-
+        
         if (m_CollectFX != null)
             Instantiate(m_CollectFX, transform.position, Quaternion.identity);
 
