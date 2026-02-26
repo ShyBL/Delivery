@@ -43,22 +43,20 @@ public class DeliveryZone : MonoBehaviour
     [Tooltip("If true the scenario loops after the vehicle leaves. False = runs once.")]
     public bool m_RepeatScenario = false;
     
-
     [Tooltip("EnemySpawner child of this zone.")]
     public EnemySpawner m_EnemySpawner;
 
-    // Calculated zone bounds (mesh or manual)
-    private Bounds m_ZoneBounds;
-
-    // The live vehicle instance being driven by this zone
-    private GameObject m_CurrentVehicle;
+    #region PRIVATE VARIABLES
     
+    private Bounds m_ZoneBounds; // Calculated zone bounds (mesh or manual)
+    private GameObject m_CurrentVehicle;  // The live vehicle instance being driven by this zone
     private PackageSpawner m_PackageSpawner;
-
     private bool m_HasSpawned = false;
     private float m_SpawnTimer = 0f;
+    
+    #endregion
 
-    // ==================== UNITY LIFECYCLE ====================
+    #region UNITY LIFECYCLE
 
     private void Awake()
     {
@@ -88,8 +86,10 @@ public class DeliveryZone : MonoBehaviour
             StartCoroutine(VehicleSequence());
         }
     }
+    
+    #endregion
 
-    // ==================== SCENARIO SEQUENCE ====================
+    #region SCENARIO SEQUENCE
 
     /// <summary>
     /// Full coroutine driving the vehicle through its lifecycle.
@@ -154,18 +154,20 @@ public class DeliveryZone : MonoBehaviour
         if (vehicle != null)
             vehicle.position = target;
     }
+    
+    #endregion
 
-    // ==================== BOUNDS ====================
-
+    #region BOUNDS
+    
     private void CalculateZoneBounds()
     {
         if (m_ZoneBoundsMesh != null && m_ZoneBoundsMesh.sharedMesh != null)
         {
             Bounds local = m_ZoneBoundsMesh.sharedMesh.bounds;
-            Matrix4x4 l2w = m_ZoneBoundsMesh.transform.localToWorldMatrix;
+            Matrix4x4 local2World = m_ZoneBoundsMesh.transform.localToWorldMatrix;
             m_ZoneBounds = new Bounds(
-                l2w.MultiplyPoint3x4(local.center),
-                l2w.MultiplyVector(local.size)
+                local2World.MultiplyPoint3x4(local.center),
+                local2World.MultiplyVector(local.size)
             );
         }
         else
@@ -186,8 +188,11 @@ public class DeliveryZone : MonoBehaviour
     public bool IsInZone(Vector3 position) => m_ZoneBounds.Contains(position);
     public Bounds GetZoneBounds() => m_ZoneBounds;
 
-    // ==================== VALIDATION ====================
-
+    
+    #endregion
+    
+    #region VALIDATION
+    
     private void ValidateReferences()
     {
         if (m_VehiclePrefab == null)
@@ -212,7 +217,9 @@ public class DeliveryZone : MonoBehaviour
             Debug.LogWarning($"DeliveryZone '{gameObject.name}': m_EnemySpawner not assigned.");
     }
 
-    // ==================== PUBLIC CONTROL ====================
+    #endregion
+    
+    #region PUBLIC CONTROL
 
     public void ResetScenario()
     {
@@ -231,8 +238,11 @@ public class DeliveryZone : MonoBehaviour
         m_SpawnTimer = 0f;
     }
 
-    // ==================== GIZMOS ====================
 
+    #endregion
+
+    #region GIZMOS
+    
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying)
@@ -273,4 +283,6 @@ public class DeliveryZone : MonoBehaviour
         );
 #endif
     }
+    
+    #endregion
 }

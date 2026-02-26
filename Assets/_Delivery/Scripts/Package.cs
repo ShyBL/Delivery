@@ -30,16 +30,11 @@ public class Package : MonoBehaviour
 
     [Tooltip("Rotation speed in degrees per second.")]
     [SerializeField] private float m_RotationSpeed = 50f;
-
-    // References set by spawner
-    private PackageSpawner m_Spawner;
-    private GameManager m_GameManager;
-
-    // Claim state — used by enemy coordination system
-    private bool m_IsClaimed = false;
-
-    // Guard against double destruction (player collects same frame enemy reaches it)
-    private bool m_IsBeingProcessed = false;
+    
+    private PackageSpawner m_Spawner; // Reference set by spawner
+    private GameManager m_GameManager; // Reference set by spawner
+    private bool m_IsClaimed = false;    // Claim state — used by enemy coordination system
+    private bool m_IsBeingProcessed = false;  // Guard against double destruction (player collects same frame enemy reaches it)
     private bool _rotate = true;
     
     private void Update()
@@ -60,7 +55,7 @@ public class Package : MonoBehaviour
         }
     }
 
-    // ==================== COLLECTION (by player) ====================
+    #region COLLECTION (by player)
 
     private void CollectPackage(Player player)
     {
@@ -75,8 +70,9 @@ public class Package : MonoBehaviour
 
         Destroy(gameObject, 0.1f);
     }
+    #endregion
 
-    // ==================== DESTRUCTION (by enemy) ====================
+    #region DESTRUCTION (by enemy)
 
     /// <summary>
     /// Called by EnemyDamage when an enemy reaches this package.
@@ -95,8 +91,9 @@ public class Package : MonoBehaviour
 
         Destroy(gameObject, 0.1f);
     }
+    #endregion
 
-    // ==================== CLAIM SYSTEM ====================
+    #region CLAIM SYSTEM
 
     /// <summary>
     /// Mark this package as claimed by an enemy so other enemies skip it.
@@ -115,8 +112,9 @@ public class Package : MonoBehaviour
     {
         return m_IsClaimed;
     }
+    #endregion
 
-    // ==================== SETUP ====================
+    #region SETUP
 
     /// <summary>
     /// Called by PackageSpawner immediately after instantiation to wire up references.
@@ -131,4 +129,6 @@ public class Package : MonoBehaviour
     {
         return m_PackageType;
     }
+    #endregion
+
 }

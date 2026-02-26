@@ -38,6 +38,8 @@ public class EnemyMovement : MonoBehaviour
 
     private Rigidbody m_Rigidbody;
     private float m_UpdateTargetTimer = 0f;
+    
+    #region UNITY LIFECYCLE
 
     private void Awake()
     {
@@ -73,8 +75,10 @@ public class EnemyMovement : MonoBehaviour
         RotateTowardTarget();
         MoveForward();
     }
-
-    // ==================== MOVEMENT ====================
+    
+    #endregion
+    
+    #region MOVEMENT
 
     private void RotateTowardTarget()
     {
@@ -100,8 +104,9 @@ public class EnemyMovement : MonoBehaviour
 
         m_Rigidbody.MovePosition(m_Rigidbody.position + movement);
     }
+    #endregion
 
-    // ==================== TARGET MANAGEMENT ====================
+    #region TARGET MANAGEMENT
 
     /// <summary>
     /// Checks whether the current target still exists.
@@ -160,8 +165,9 @@ public class EnemyMovement : MonoBehaviour
             Debug.Log($"Enemy '{gameObject.name}': no unclaimed packages remain. Idling.");
         }
     }
+    #endregion
 
-    // ==================== SETUP (called by EnemySpawner) ====================
+    #region SETUP (called by EnemySpawner)
 
     /// <summary>
     /// Assigns the specific package this enemy should hunt first.
@@ -185,8 +191,9 @@ public class EnemyMovement : MonoBehaviour
     {
         m_KnownPackages = packages;
     }
+    #endregion
 
-    // ==================== GIZMOS ====================
+    #region GIZMOS
 
     private void OnDrawGizmos()
     {
@@ -198,4 +205,6 @@ public class EnemyMovement : MonoBehaviour
                         m_CurrentTarget.position + Vector3.up * 0.5f);
         Gizmos.DrawWireSphere(m_CurrentTarget.position, 0.4f);
     }
+    #endregion
+
 }

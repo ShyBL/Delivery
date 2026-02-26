@@ -26,12 +26,8 @@ public abstract class BaseSpawner : MonoBehaviour
     [Tooltip("How many attempts to find a valid spawn position before giving up.")]
     public int m_MaxSpawnAttempts = 10;
 
-    // The world-space center point set when TriggerSpawn is called
-    protected Vector3 m_SpawnCenter = Vector3.zero;
-
-    // Tracks all living entities this spawner owns
-    protected List<GameObject> m_ActiveEntities = new List<GameObject>();
-
+    protected Vector3 m_SpawnCenter = Vector3.zero;     // The world-space center point set when TriggerSpawn is called
+    protected List<GameObject> m_ActiveEntities = new List<GameObject>();     // Tracks all living entities this spawner owns
     protected GameManager m_GameManager;
 
     protected virtual void Start()
@@ -42,7 +38,7 @@ public abstract class BaseSpawner : MonoBehaviour
             Debug.LogWarning($"{GetType().Name}: No GameManager found in scene.");
     }
 
-    // ==================== PUBLIC INTERFACE ====================
+    #region PUBLIC INTERFACE
 
     /// <summary>
     /// Called by DeliveryZone when the vehicle stops.
@@ -68,8 +64,9 @@ public abstract class BaseSpawner : MonoBehaviour
 
         m_ActiveEntities.Clear();
     }
-
-    // ==================== SPAWNING ====================
+    #endregion
+    
+    #region SPAWNING
 
     /// <summary>
     /// Spawns up to m_MaxActiveEntities entities in one go.
@@ -88,8 +85,9 @@ public abstract class BaseSpawner : MonoBehaviour
     /// Spawn a single entity. Must be implemented by derived classes.
     /// </summary>
     protected abstract void SpawnEntity();
-
-    // ==================== POSITION HELPERS ====================
+    #endregion
+    
+    #region POSITION HELPERS
 
     /// <summary>
     /// Returns a random position within m_SpawnRadius of m_SpawnCenter,
@@ -140,8 +138,9 @@ public abstract class BaseSpawner : MonoBehaviour
 
         return true;
     }
-
-    // ==================== GETTERS ====================
+    #endregion
+    
+    #region GETTERS
 
     public Vector3 GetSpawnCenter() => m_SpawnCenter;
 
@@ -150,8 +149,9 @@ public abstract class BaseSpawner : MonoBehaviour
         m_ActiveEntities.RemoveAll(e => e == null);
         return m_ActiveEntities.Count;
     }
-
-    // ==================== GIZMOS ====================
+    #endregion
+    
+    #region GIZMOS
 
     protected virtual void OnDrawGizmos()
     {
@@ -198,4 +198,5 @@ public abstract class BaseSpawner : MonoBehaviour
             prev = next;
         }
     }
+    #endregion
 }

@@ -37,7 +37,7 @@ public class EnemySpawner : BaseSpawner
             Debug.LogWarning($"EnemySpawner '{gameObject.name}': no enemy types assigned.");
     }
 
-    // ==================== TRIGGER ====================
+    #region TRIGGER
 
     /// <summary>
     /// Called by DeliveryZone when the vehicle stops.
@@ -49,8 +49,9 @@ public class EnemySpawner : BaseSpawner
         m_SpawnCenter = transform.position;
         SpawnCoordinatedBatch();
     }
+    #endregion
 
-    // ==================== COORDINATED SPAWNING ====================
+    #region COORDINATED SPAWNING
 
     /// <summary>
     /// Spawns up to m_MaxActiveEntities enemies and assigns one package per enemy.
@@ -128,8 +129,9 @@ public class EnemySpawner : BaseSpawner
 
         return instance;
     }
+    #endregion
 
-    // ==================== POSITION ====================
+    #region POSITION
 
     /// <summary>
     /// Returns a spawn position on the outer ring around the package spawn center.
@@ -155,8 +157,9 @@ public class EnemySpawner : BaseSpawner
 
         return result;
     }
+    #endregion
 
-    // ==================== BASE OVERRIDE ====================
+    #region BASE OVERRIDE
 
     /// <summary>
     /// Not used — EnemySpawner uses SpawnCoordinatedBatch instead of the
@@ -167,8 +170,9 @@ public class EnemySpawner : BaseSpawner
         // Intentionally empty — coordination requires spawning the whole batch at once.
         // SpawnCoordinatedBatch() handles everything.
     }
+    #endregion
 
-    // ==================== GIZMOS ====================
+    #region GIZMOS
 
     protected override void OnDrawGizmos()
     {
@@ -209,4 +213,6 @@ public class EnemySpawner : BaseSpawner
             Gizmos.DrawLine(transform.position, center);
         }
     }
+    #endregion
+
 }

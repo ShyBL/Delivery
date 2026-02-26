@@ -58,7 +58,6 @@ public class RobotMove : MonoBehaviour
             model.transform.rotation = Quaternion.Slerp(model.transform.rotation, targetRotation, Time.deltaTime * 10f);
         }
     }
-
     
     private void Move()
     {
@@ -78,6 +77,5 @@ public class RobotMove : MonoBehaviour
         turnRotation = Quaternion.Euler(0f, turn, 0f);
         m_Rigidbody.MoveRotation(m_Rigidbody.rotation * turnRotation);
     }
-
-
+    
 }

@@ -24,7 +24,7 @@ public class PackageSpawner : BaseSpawner
             Debug.LogWarning($"PackageSpawnerV2 '{gameObject.name}': no package types assigned.");
     }
 
-    // ==================== SPAWNING ====================
+    #region SPAWNING
 
     /// <summary>
     /// Instantiates a single package at a random valid position around the spawn center.
@@ -55,8 +55,9 @@ public class PackageSpawner : BaseSpawner
         Debug.Log($"PackageSpawnerV2: spawned {instance.GetPackageType()} package. " +
                   $"Active: {m_ActiveEntities.Count}/{m_MaxActiveEntities}");
     }
-
-    // ==================== PACKAGE LIFECYCLE ====================
+    #endregion
+    
+    #region PACKAGE LIFECYCLE
 
     /// <summary>
     /// Called by PackageV2 when it is collected by the player or destroyed by an enemy.
@@ -66,8 +67,9 @@ public class PackageSpawner : BaseSpawner
     {
         m_ActiveEntities.Remove(package);
     }
-
-    // ==================== ENEMY COORDINATION ====================
+    #endregion
+    
+    #region ENEMY COORDINATION
 
     /// <summary>
     /// Returns the current list of active package GameObjects.
@@ -79,4 +81,5 @@ public class PackageSpawner : BaseSpawner
         m_ActiveEntities.RemoveAll(e => e == null);
         return m_ActiveEntities;
     }
+    #endregion
 }
