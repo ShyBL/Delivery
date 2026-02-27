@@ -59,10 +59,10 @@ public class MissionHUD : MonoBehaviour
         }
     }
     
-    private void Awake()
+    private void Start()
     {
         // Find the GameManager
-        m_GameManager = FindAnyObjectByType<GameManager>();
+        m_GameManager = GameManager.instance;
             
         if (m_GameManager == null)
         {
@@ -73,20 +73,7 @@ public class MissionHUD : MonoBehaviour
             m_GameManager.HUD = this;
         }
         
-        // Setup progress bar if assigned
-        if (m_ProgressBar != null)
-        {
-            m_ProgressBar.minValue = 0;
-            m_ProgressBar.maxValue = 1;
-            m_ProgressBar.value = 0;
-            
-            if (m_ProgressFillImage != null)
-            {
-                m_ProgressFillImage.color = m_ProgressFillColor;
-            }
-            
-            UpdatePackageProgress();
-        }
+        UpdatePackageProgress();
     }
 
     private void Update()
@@ -115,6 +102,11 @@ public class MissionHUD : MonoBehaviour
         {
             m_ProgressBar.maxValue = target;
             m_ProgressBar.value = delivered;
+        }
+        
+        if (m_ProgressFillImage != null)
+        {
+            m_ProgressFillImage.color = m_ProgressFillColor;
         }
     }
 

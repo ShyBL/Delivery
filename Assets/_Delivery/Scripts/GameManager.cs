@@ -26,14 +26,15 @@ public class GameManager : MonoBehaviour
     public float m_MissionTimer = 0f;                       // Current mission elapsed time
 
     public MissionHUD HUD;
-    
+    public Player player;
+
     private void Awake()
     {
         if (instance == null)
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
-            
+            player = FindFirstObjectByType<Player>();
             m_CurrentState = GameState.MainMenu;
             m_StartWait = new WaitForSeconds (m_StartDelay);
             m_EndWait = new WaitForSeconds (m_EndDelay); 
@@ -48,7 +49,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         // Freeze the game until DebugWindow calls StartGame()
-        Time.timeScale = 0f;
+        //Time.timeScale = 0f;
         Debug.Log("GameManager: Game PAUSED in MainMenu state. Configure settings and click 'Apply to Scene' to start.");
     }
     
@@ -59,7 +60,7 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         // Unfreeze time when starting the game
-        Time.timeScale = 1f;
+        //Time.timeScale = 1f;
         ChangeGameState(GameState.Game);
     }
 
@@ -159,6 +160,8 @@ public class GameManager : MonoBehaviour
     public void RegisterDelivery()
     {
         m_PackagesDelivered++;
+        player.m_Packages--;
+        
         HUD?.SetPackageProgress(m_PackagesDelivered, m_TotalPackagesToDeliver);
         
         Debug.Log($"Package collected! Progress: {m_PackagesDelivered}/{m_TotalPackagesToDeliver}");

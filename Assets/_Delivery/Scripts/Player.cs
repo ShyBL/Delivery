@@ -10,7 +10,7 @@ public class Player : MonoBehaviour
 {
     public RobotAnimate robotAnimate;
     public RobotMove robotMove;
-    private int m_Packages;
+    public int m_Packages;
     public int m_TotalPackages;
     
     [Tooltip("Progress bar showing package completion")]

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 /// <summary>
 /// Debug window that appears in-game to quickly adjust gameplay settings.
@@ -12,6 +13,8 @@ public class DebugWindow : MonoBehaviour
     [Tooltip("The DebugConfig ScriptableObject containing default values.")]
     public DebugConfig m_Config;
 
+    public KeyCode m_ToggleKey;
+    
     private Rect m_WindowRect = new Rect(20, 20, 400, 600);
     private Vector2 m_ScrollPosition = Vector2.zero;
 
@@ -34,6 +37,7 @@ public class DebugWindow : MonoBehaviour
     private string m_TotalPackagesStr;
     private string m_MissionTimeLimitStr;
     private string m_TeleporterCooldownStr;
+    private bool m_ShowWindow = true;
 
     private void Start()
     {
@@ -49,9 +53,20 @@ public class DebugWindow : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        // Toggle window visibility
+        if (Input.GetKeyDown(m_ToggleKey))
+        {
+            m_ShowWindow = !m_ShowWindow;
+        }
+    }
+
     private void OnGUI()
     {
-        m_WindowRect = GUI.Window(0, m_WindowRect, DrawWindow, "Debug Configuration - Apply to Start Game");
+        if (!m_ShowWindow) return;
+
+        m_WindowRect = GUI.Window(0, m_WindowRect, DrawWindow, "Debug Configuration (F1 to toggle, Apply to Start Game )");
     }
 
     private void DrawWindow(int windowID)
