@@ -6,7 +6,7 @@ public class Teleporter : MonoBehaviour
     [SerializeField] public UnityEvent OnTrigger;
     [SerializeField] private float deliveryCooldown = 0.5f;
 
-    private float _cooldownTimer;
+    public float _cooldownTimer;
 
     private void Update()
     {

@@ -3,22 +3,27 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Manages the game state and mission flow for the Delivery game.
+/// Starts in MainMenu state and waits for DebugWindow to call StartGame().
+/// After mission completion (win or lose), reloads the scene and returns to MainMenu state.
+/// </summary>
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     
-    private GameState m_CurrentState; // State the game is currently in
-    private WaitForSeconds m_StartWait;
+    private GameState m_CurrentState;                       // State the game is currently in
+    private WaitForSeconds m_StartWait;                     
     private WaitForSeconds m_EndWait;
-    public float m_StartDelay = 3f;             // The delay between the start of RoundStarting and RoundPlaying phases.
-    public float m_EndDelay = 3f;               // The delay between the end of RoundPlaying and RoundEnding phases.
+    public float m_StartDelay = 3f;                         // The delay between the start of RoundStarting and RoundPlaying phases.
+    public float m_EndDelay = 3f;                           // The delay between the end of RoundPlaying and RoundEnding phases.
     
     [Header("Delivery Mission Settings")]
-    public int m_TotalPackagesToDeliver = 10;       // Total packages needed to complete mission
-    public float m_MissionTimeLimit = 300f;         // 5 minutes mission time limit
+    public int m_TotalPackagesToDeliver = 10;               // Total packages needed to complete mission
+    public float m_MissionTimeLimit = 300f;                 // 5 minutes mission time limit
     
-    private int m_PackagesDelivered = 0;            // Current number of packages delivered
-    public float m_MissionTimer = 0f;              // Current mission elapsed time
+    private int m_PackagesDelivered = 0;                    // Current number of packages delivered
+    public float m_MissionTimer = 0f;                       // Current mission elapsed time
 
     public MissionHUD HUD;
     
@@ -39,15 +44,22 @@ public class GameManager : MonoBehaviour
             return;
         }
     }
+    
     private void Start()
     {
-        StartGame();
-
+        // Freeze the game until DebugWindow calls StartGame()
+        Time.timeScale = 0f;
+        Debug.Log("GameManager: Game PAUSED in MainMenu state. Configure settings and click 'Apply to Scene' to start.");
     }
     
-    // Called by the menu
+    /// <summary>
+    /// Called by DebugWindow when "Apply to Scene" is clicked.
+    /// Transitions from MainMenu to active game state and unfreezes time.
+    /// </summary>
     public void StartGame()
     {
+        // Unfreeze time when starting the game
+        Time.timeScale = 1f;
         ChangeGameState(GameState.Game);
     }
 
@@ -86,8 +98,13 @@ public class GameManager : MonoBehaviour
         // End the mission and show results
         yield return StartCoroutine(MissionEnding());
 
-        // Restart the level after mission completion
-        SceneManager.LoadScene(0);
+        // Return to MainMenu state by reloading the scene
+        Debug.Log("Mission ended. Reloading scene to MainMenu state...");
+        
+        // Reset time scale before reload so next session starts frozen
+        Time.timeScale = 0f;
+        
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     private IEnumerator MissionStarting()
@@ -101,6 +118,8 @@ public class GameManager : MonoBehaviour
         m_PackagesDelivered = 0;
         m_MissionTimer = 0f;
         
+        Debug.Log("Mission Active - Deliver packages before time runs out!");
+        
         while (!MissionComplete() && !MissionFailed())
         {
             m_MissionTimer += Time.deltaTime;
@@ -111,7 +130,15 @@ public class GameManager : MonoBehaviour
     
     private IEnumerator MissionEnding()
     {
-        Debug.Log("Ending Mission");
+        if (MissionComplete())
+        {
+            Debug.Log($"MISSION SUCCESS! Delivered {m_PackagesDelivered}/{m_TotalPackagesToDeliver} packages in {m_MissionTimer:F1} seconds!");
+        }
+        else if (MissionFailed())
+        {
+            Debug.Log($"MISSION FAILED! Time limit reached. Only delivered {m_PackagesDelivered}/{m_TotalPackagesToDeliver} packages.");
+        }
+        
         yield return m_EndWait;
     }
     
@@ -125,16 +152,20 @@ public class GameManager : MonoBehaviour
         return m_MissionTimer >= m_MissionTimeLimit;
     }
     
+    /// <summary>
+    /// Called by Package when collected by the player.
+    /// Increments delivery count and updates HUD.
+    /// </summary>
     public void RegisterDelivery()
     {
         m_PackagesDelivered++;
-        HUD.SetPackageProgress(m_PackagesDelivered, m_TotalPackagesToDeliver);
+        HUD?.SetPackageProgress(m_PackagesDelivered, m_TotalPackagesToDeliver);
+        
+        Debug.Log($"Package collected! Progress: {m_PackagesDelivered}/{m_TotalPackagesToDeliver}");
     }
 
     public int GetDeliveryCount()
     {
         return m_PackagesDelivered;
     }
-
-
 }

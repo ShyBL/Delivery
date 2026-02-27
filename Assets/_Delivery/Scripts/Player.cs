@@ -2,6 +2,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Manages the player-controlled delivery bot.
+/// Tracks collected packages, handles collection events, and manages player control state.
+/// </summary>
 public class Player : MonoBehaviour
 {
     public RobotAnimate robotAnimate;
@@ -58,13 +62,20 @@ public class Player : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Called when the player collects a package.
+    /// Registers the pickup and triggers the pickup animation.
+    /// </summary>
     public void OnPackageCollected()
     {
         RegisterPickup();
         robotAnimate.AnimatePickup();
     }
     
+    /// <summary>
+    /// Enables or disables player movement control.
+    /// </summary>
+    /// <param name="value">True to enable control, false to disable.</param>
     public void ToggleControl(bool value)
     {
         if (robotMove != null)
@@ -77,11 +88,17 @@ public class Player : MonoBehaviour
         UpdatePackageProgress();
     }
     
+    /// <summary>
+    /// Returns the number of packages currently held by the player.
+    /// </summary>
     public int GetPackagesStoredCount()
     {
         return m_Packages;
     }
     
+    /// <summary>
+    /// Returns the maximum number of packages the player can carry.
+    /// </summary>
     public int GetPackagesStorageCount()
     {
         return m_TotalPackages;

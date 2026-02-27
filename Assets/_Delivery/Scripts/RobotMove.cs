@@ -3,8 +3,8 @@ using UnityEngine.InputSystem;
 
 public class RobotMove : MonoBehaviour
 {
-    [SerializeField] private float m_Speed = 12f; 
-    [SerializeField] private float m_TurnSpeed = 180f;
+    [SerializeField] public float m_Speed = 12f; 
+    [SerializeField] public float m_TurnSpeed = 180f;
     [SerializeField] private GameObject model;
         
     private InputActionAsset m_LocalActionAsset;

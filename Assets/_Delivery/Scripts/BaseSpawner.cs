@@ -141,9 +141,15 @@ public abstract class BaseSpawner : MonoBehaviour
     #endregion
     
     #region GETTERS
-
+    /// <summary>
+    /// Returns the world-space center point where entities are spawned around.
+    /// </summary>
     public Vector3 GetSpawnCenter() => m_SpawnCenter;
 
+    /// <summary>
+    /// Returns the current number of active entities managed by this spawner.
+    /// Automatically removes null entries before counting.
+    /// </summary>
     public int GetActiveEntityCount()
     {
         m_ActiveEntities.RemoveAll(e => e == null);

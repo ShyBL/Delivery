@@ -4,17 +4,13 @@ using UnityEngine;
 /// <summary>
 /// Orchestrates the delivery scenario for one zone:
 ///   1. Waits m_VehicleSpawnDelay seconds.
-///   2. Instantiates the vehicle prefab (just a visual — no scripts on it) at m_VehicleStartPoint.
+///   2. Instantiates the vehicle prefab at m_VehicleStartPoint.
 ///   3. Lerps the vehicle to a random stop point inside the zone bounds.
-///   4. Triggers PackageSpawner and EnemySpawner at the stop position.
-///   5. Waits m_VehicleStopDuration seconds.
-///   6. Lerps the vehicle out past the zone edge and destroys it.
+///   4. Triggers EnemySpawner, and triggers PackageSpawner at the stop position.
+///   5. Vehicle remains in place for the duration of the scenario.
 ///
 /// The vehicle prefab needs no scripts — this zone drives it entirely.
-/// Optionally add a child Transform named "PackageDropPoint" to the prefab
-/// to offset where packages spawn relative to the vehicle.
-///
-/// Follows the GameManager orchestration pattern from Tanks.
+/// Optionally add a child Transform named "PackageDropPoint" to offset spawn position.
 /// </summary>
 public class DeliveryZone : MonoBehaviour
 {
@@ -51,8 +47,8 @@ public class DeliveryZone : MonoBehaviour
     private Bounds m_ZoneBounds; // Calculated zone bounds (mesh or manual)
     private GameObject m_CurrentVehicle;  // The live vehicle instance being driven by this zone
     private PackageSpawner m_PackageSpawner;
-    private bool m_HasSpawned = false;
-    private float m_SpawnTimer = 0f;
+    private bool m_HasSpawned = false; // Whether the first scenario cycle has run
+    private float m_SpawnTimer = 0f; // Countdown timer until next vehicle spawn
     
     #endregion
 
@@ -185,7 +181,14 @@ public class DeliveryZone : MonoBehaviour
         );
     }
 
+    /// <summary>
+    /// Checks whether the given world position is inside this zone's bounds.
+    /// </summary>
     public bool IsInZone(Vector3 position) => m_ZoneBounds.Contains(position);
+    
+    /// <summary>
+    /// Returns the calculated world-space bounds of this delivery zone.
+    /// </summary>
     public Bounds GetZoneBounds() => m_ZoneBounds;
 
     
@@ -221,6 +224,10 @@ public class DeliveryZone : MonoBehaviour
     
     #region PUBLIC CONTROL
 
+    /// <summary>
+    /// Stops the current scenario, destroys the vehicle, and clears all spawned entities.
+    /// Resets timers so the scenario can start again.
+    /// </summary>
     public void ResetScenario()
     {
         StopAllCoroutines();

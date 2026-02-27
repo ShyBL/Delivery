@@ -35,11 +35,11 @@ public class Package : MonoBehaviour
     private GameManager m_GameManager; // Reference set by spawner
     private bool m_IsClaimed = false;    // Claim state — used by enemy coordination system
     private bool m_IsBeingProcessed = false;  // Guard against double destruction (player collects same frame enemy reaches it)
-    private bool _rotate = true;
+    private bool m_rotate = true; // Whether the package model should rotate
     
     private void Update()
     {
-        if (_rotate)
+        if (m_rotate)
         {
             m_PackageModel.transform.Rotate(Vector3.forward, m_RotationSpeed * Time.deltaTime);
         }
@@ -67,7 +67,7 @@ public class Package : MonoBehaviour
         if (m_CollectFX != null)
             Instantiate(m_CollectFX, transform.position, Quaternion.identity);
 
-        Destroy(gameObject, 0.1f);
+        Destroy(gameObject, 2f);
     }
     #endregion
 
@@ -124,6 +124,9 @@ public class Package : MonoBehaviour
         m_GameManager = gameManager;
     }
 
+    /// <summary>
+    /// Returns the type classification of this package (Standard, Rare, or Unique).
+    /// </summary>
     public PackageType GetPackageType()
     {
         return m_PackageType;
