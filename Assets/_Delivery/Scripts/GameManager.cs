@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         // Freeze the game until DebugWindow calls StartGame()
-        //Time.timeScale = 0f;
+        Time.timeScale = 0f;
         Debug.Log("GameManager: Game PAUSED in MainMenu state. Configure settings and click 'Apply to Scene' to start.");
     }
     
@@ -60,7 +60,7 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         // Unfreeze time when starting the game
-        //Time.timeScale = 1f;
+        Time.timeScale = 1f;
         ChangeGameState(GameState.Game);
     }
 

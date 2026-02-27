@@ -65,7 +65,7 @@ public class RobotMove : MonoBehaviour
         speedInput = m_MovementInputValue;
         Vector3 movement = transform.forward * speedInput * m_Speed;
 
-        m_Rigidbody.linearVelocity = movement + m_ExplosionForceValue;
+        m_Rigidbody.velocity = movement + m_ExplosionForceValue;
         m_ExplosionForceValue = Vector3.Lerp(m_ExplosionForceValue, Vector3.zero, Time.deltaTime * 3f); // 3f = braking speed
     }
     

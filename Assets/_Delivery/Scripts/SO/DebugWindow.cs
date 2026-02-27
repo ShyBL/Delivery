@@ -12,10 +12,21 @@ public class DebugWindow : MonoBehaviour
     [Header("Configuration")]
     [Tooltip("The DebugConfig ScriptableObject containing default values.")]
     public DebugConfig m_Config;
-
+    
+    [Header("Visual Settings")]
+    public Color m_BackgroundColor = new Color(0.2f, 0.2f, 0.2f, 1.0f);
+    public Color m_TextColor = Color.white;
+    public Color m_ButtonColor = Color.cyan;
+    [Range(10, 40)]
+    public int m_GlobalFontSize = 18;
+    public GUIStyle m_HeaderStyle;
+    public GUIStyle m_LabelStyle;
+    public GUIStyle m_TextFieldStyle;
+    public GUIStyle m_ButtonStyle;
+    
     public KeyCode m_ToggleKey;
     
-    private Rect m_WindowRect = new Rect(20, 20, 400, 600);
+    private Rect m_WindowRect = new Rect(20, 20, 400, 1100);
     private Vector2 m_ScrollPosition = Vector2.zero;
 
     // Cached references to scene objects
@@ -38,7 +49,7 @@ public class DebugWindow : MonoBehaviour
     private string m_MissionTimeLimitStr;
     private string m_TeleporterCooldownStr;
     private bool m_ShowWindow = true;
-
+    private bool m_StylesInitialized = false; // Flag to prevent the error
     private void Start()
     {
         // Initialize string fields from config if available
@@ -60,13 +71,56 @@ public class DebugWindow : MonoBehaviour
         {
             m_ShowWindow = !m_ShowWindow;
         }
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 
     private void OnGUI()
     {
         if (!m_ShowWindow) return;
 
-        m_WindowRect = GUI.Window(0, m_WindowRect, DrawWindow, "Debug Configuration (F1 to toggle, Apply to Start Game )");
+        if (!m_StylesInitialized)
+        {
+            InitializeStyles();
+            UpdateFontSize();
+            m_StylesInitialized = true;
+        }
+
+        m_WindowRect = GUI.Window(0, m_WindowRect, DrawWindow, "Game State Menu");
+    }
+
+    private void InitializeStyles()
+    {
+        // Now GUI.skin is accessible!
+        m_HeaderStyle = new GUIStyle(GUI.skin.box);
+        m_HeaderStyle.fontStyle = FontStyle.Bold;
+        m_HeaderStyle.alignment = TextAnchor.MiddleCenter;
+        m_HeaderStyle.normal.textColor = m_TextColor;
+
+        m_LabelStyle = new GUIStyle(GUI.skin.label);
+        m_LabelStyle.fontStyle = FontStyle.Bold;
+        m_LabelStyle.normal.textColor = m_TextColor;
+        
+        m_TextFieldStyle = new GUIStyle(GUI.skin.textField);
+        m_TextFieldStyle.fontStyle = FontStyle.Bold;
+        m_TextFieldStyle.normal.textColor = m_TextColor;
+        
+        m_ButtonStyle = new GUIStyle(GUI.skin.button);
+        m_ButtonStyle.fontStyle = FontStyle.Bold;
+        m_ButtonStyle.normal.textColor = m_TextColor;
+    }
+
+    private void UpdateFontSize()
+    {
+        m_HeaderStyle.fontSize = m_GlobalFontSize + 4;
+        m_LabelStyle.fontSize = m_GlobalFontSize;
+        m_TextFieldStyle.fontSize = m_GlobalFontSize;
+        m_ButtonStyle.fontSize = m_GlobalFontSize;
+        
+        // Adjust window width so it doesn't look cramped when text is huge
+        m_WindowRect.width = Mathf.Max(450, m_GlobalFontSize * 20); 
     }
 
     private void DrawWindow(int windowID)
@@ -74,82 +128,76 @@ public class DebugWindow : MonoBehaviour
         GUILayout.BeginVertical();
         m_ScrollPosition = GUILayout.BeginScrollView(m_ScrollPosition);
 
-        // Player Settings
-        GUILayout.Label("=== PLAYER SETTINGS ===", GUI.skin.box);
-        GUILayout.Label("Speed (units/sec):");
-        m_PlayerSpeedStr = GUILayout.TextField(m_PlayerSpeedStr, 25);
+        GUILayout.Label("Press Apply button to Play", m_HeaderStyle);
+        GUILayout.Label("F1 to Close - Esc to Quit", m_HeaderStyle);
+
+        GUILayout.Space(10);
         
-        GUILayout.Label("Turn Speed (deg/sec):");
-        m_PlayerTurnSpeedStr = GUILayout.TextField(m_PlayerTurnSpeedStr, 25);
+        // Player Settings
+        GUILayout.Label("=== PLAYER SETTINGS ===", m_HeaderStyle);
+        GUILayout.Label("Speed (units/sec):", m_LabelStyle);
+        m_PlayerSpeedStr = GUILayout.TextField(m_PlayerSpeedStr, 25, m_TextFieldStyle);
+        
+        GUILayout.Label("Turn Speed (deg/sec):", m_LabelStyle);
+        m_PlayerTurnSpeedStr = GUILayout.TextField(m_PlayerTurnSpeedStr, 25, m_TextFieldStyle);
         
         GUILayout.Space(10);
 
         // Delivery Zone Settings
-        GUILayout.Label("=== DELIVERY ZONE SETTINGS ===", GUI.skin.box);
-        GUILayout.Label("Manual Bounds Size (x,y,z):");
-        m_ZoneBoundsSizeStr = GUILayout.TextField(m_ZoneBoundsSizeStr, 25);
+        GUILayout.Label("=== DELIVERY ZONE SETTINGS ===", m_HeaderStyle);
+        GUILayout.Label("Manual Bounds Size (x,y,z):", m_LabelStyle);
+        m_ZoneBoundsSizeStr = GUILayout.TextField(m_ZoneBoundsSizeStr, 25, m_TextFieldStyle);
         
-        GUILayout.Label("Vehicle Speed:");
-        m_VehicleSpeedStr = GUILayout.TextField(m_VehicleSpeedStr, 25);
+        GUILayout.Label("Vehicle Speed:", m_LabelStyle);
+        m_VehicleSpeedStr = GUILayout.TextField(m_VehicleSpeedStr, 25, m_TextFieldStyle);
         
-        GUILayout.Label("Repeat Scenario:");
         bool repeatScenario = GUILayout.Toggle(
             m_Config != null && m_Config.repeatScenario,
             "Loop zones after completion"
         );
         if (m_Config != null) m_Config.repeatScenario = repeatScenario;
         
-        GUILayout.Label("Spawn Delay (seconds):");
-        m_SpawnDelayStr = GUILayout.TextField(m_SpawnDelayStr, 25);
+        GUILayout.Label("Spawn Delay (seconds):", m_LabelStyle);
+        m_SpawnDelayStr = GUILayout.TextField(m_SpawnDelayStr, 25, m_TextFieldStyle);
         
         GUILayout.Space(10);
 
         // Enemy Spawner Settings
-        GUILayout.Label("=== ENEMY SPAWNER SETTINGS ===", GUI.skin.box);
-        GUILayout.Label("Spawn Radius:");
-        m_EnemySpawnRadiusStr = GUILayout.TextField(m_EnemySpawnRadiusStr, 25);
+        GUILayout.Label("=== ENEMY SPAWNER SETTINGS ===", m_HeaderStyle);
+        GUILayout.Label("Spawn Radius:", m_LabelStyle);
+        m_EnemySpawnRadiusStr = GUILayout.TextField(m_EnemySpawnRadiusStr, 25, m_TextFieldStyle);
         
-        GUILayout.Label("Spawn Range From Packages:");
-        m_EnemySpawnRangeStr = GUILayout.TextField(m_EnemySpawnRangeStr, 25);
+        GUILayout.Label("Spawn Range From Packages:", m_LabelStyle);
+        m_EnemySpawnRangeStr = GUILayout.TextField(m_EnemySpawnRangeStr, 25, m_TextFieldStyle);
         
         GUILayout.Space(10);
 
         // Game Manager Settings
-        GUILayout.Label("=== GAME MANAGER SETTINGS ===", GUI.skin.box);
-        GUILayout.Label("Total Packages To Deliver:");
-        m_TotalPackagesStr = GUILayout.TextField(m_TotalPackagesStr, 25);
+        GUILayout.Label("=== GAME MANAGER SETTINGS ===", m_HeaderStyle);
+        GUILayout.Label("Total Packages To Deliver:", m_LabelStyle);
+        m_TotalPackagesStr = GUILayout.TextField(m_TotalPackagesStr, 25, m_TextFieldStyle);
         
-        GUILayout.Label("Mission Time Limit (seconds):");
-        m_MissionTimeLimitStr = GUILayout.TextField(m_MissionTimeLimitStr, 25);
+        GUILayout.Label("Mission Time Limit (seconds):", m_LabelStyle);
+        m_MissionTimeLimitStr = GUILayout.TextField(m_MissionTimeLimitStr, 25, m_TextFieldStyle);
         
         GUILayout.Space(10);
 
         // Teleporter Settings
-        GUILayout.Label("=== TELEPORTER SETTINGS ===", GUI.skin.box);
-        GUILayout.Label("Cooldown (seconds):");
-        m_TeleporterCooldownStr = GUILayout.TextField(m_TeleporterCooldownStr, 25);
+        GUILayout.Label("=== TELEPORTER SETTINGS ===", m_HeaderStyle);
+        GUILayout.Label("Cooldown (seconds):", m_LabelStyle);
+        m_TeleporterCooldownStr = GUILayout.TextField(m_TeleporterCooldownStr, 25, m_TextFieldStyle);
         
         GUILayout.Space(20);
 
-        // Action Buttons
+        // Action Buttons - Temporary change color for buttons
+        GUI.backgroundColor = m_ButtonColor;
+        
         GUILayout.BeginHorizontal();
-        
-        if (GUILayout.Button("Apply to Scene", GUILayout.Height(30)))
-        {
-            ApplyToScene();
-        }
-        
-        if (GUILayout.Button("Load from Config", GUILayout.Height(30)))
-        {
-            LoadFromConfig();
-        }
-        
+        if (GUILayout.Button("Apply to Scene", GUILayout.Height(30))) ApplyToScene();
+        if (GUILayout.Button("Load Config", GUILayout.Height(30))) LoadFromConfig();
         GUILayout.EndHorizontal();
 
-        if (GUILayout.Button("Save to Config", GUILayout.Height(30)))
-        {
-            SaveToConfig();
-        }
+        if (GUILayout.Button("Save to Config", GUILayout.Height(30))) SaveToConfig();
 
         GUILayout.EndScrollView();
         GUILayout.EndVertical();
