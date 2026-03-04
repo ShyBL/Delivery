@@ -35,7 +35,7 @@ public class DebugWindow : MonoBehaviour
     private DeliveryZone[] m_DeliveryZones;
     private EnemySpawner[] m_EnemySpawners;
     private GameManager m_GameManager;
-    private Teleporter m_Teleporter;
+    private Delivery m_Teleporter;
 
     // String fields for text input
     private string m_PlayerSpeedStr;
@@ -216,7 +216,7 @@ public class DebugWindow : MonoBehaviour
         m_DeliveryZones = FindObjectsByType<DeliveryZone>(FindObjectsSortMode.None);
         m_EnemySpawners = FindObjectsByType<EnemySpawner>(FindObjectsSortMode.None);
         m_GameManager = FindAnyObjectByType<GameManager>();
-        m_Teleporter = FindAnyObjectByType<Teleporter>();
+        m_Teleporter = FindAnyObjectByType<Delivery>();
 
         // Apply Player settings
         if (m_RobotMove != null)

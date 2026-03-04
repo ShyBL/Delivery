@@ -44,7 +44,7 @@ public abstract class BaseSpawner : MonoBehaviour
     /// Called by DeliveryZone when the vehicle stops.
     /// Sets the spawn center and spawns the initial batch of entities.
     /// </summary>
-    public virtual void TriggerSpawn(PackageSpawner packageSpawner)
+    public virtual void TriggerSpawn(PackageSpawner packageSpawner = null)
     {
         m_SpawnCenter = transform.position;
         SpawnInitialBatch();

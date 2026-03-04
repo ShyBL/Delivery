@@ -114,7 +114,7 @@ public class DeliveryZone : MonoBehaviour
         Transform dropPoint = m_PackageSpawner.transform;
         Vector3 spawnOrigin = dropPoint != null ? dropPoint.position : stopPoint;
         
-        m_PackageSpawner?.TriggerSpawn(m_PackageSpawner);
+        m_PackageSpawner?.TriggerSpawn();
         m_EnemySpawner?.TriggerSpawn(m_PackageSpawner);
 
         Debug.Log($"DeliveryZone '{gameObject.name}': vehicle stopped. Spawners triggered at {spawnOrigin}.");

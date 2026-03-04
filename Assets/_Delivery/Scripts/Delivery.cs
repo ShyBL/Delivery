@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-public class Teleporter : MonoBehaviour
+public class Delivery : MonoBehaviour
 {
     [SerializeField] public UnityEvent OnTrigger;
     [SerializeField] private float deliveryCooldown = 0.5f;
