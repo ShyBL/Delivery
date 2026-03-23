@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5348045477365448794}
   - component: {fileID: 394734658847165529}
   - component: {fileID: 4266133015727115315}
+  - component: {fileID: 433615045297040503}
   m_Layer: 0
   m_Name: Package
   m_TagString: Untagged
@@ -72,6 +73,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2, y: 1, z: 2}
   m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &433615045297040503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5927808725182616847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cde717a80f445cf9e86fac4e7d75aa5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  markerLabel: Package
+  discoveredIcon: {fileID: 21300000, guid: 8609099db1e09724badbcdcb887b51ef, type: 3}
+  unknownIcon: {fileID: 21300000, guid: c07323fef8b760f4a89aabad593826bc, type: 3}
 --- !u!1001 &1577305129175825499
 PrefabInstance:
   m_ObjectHideFlags: 0

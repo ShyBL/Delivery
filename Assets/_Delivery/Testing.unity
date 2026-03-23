@@ -305,6 +305,7 @@ GameObject:
   m_Component:
   - component: {fileID: 155665863}
   - component: {fileID: 155665864}
+  - component: {fileID: 155665865}
   m_Layer: 0
   m_Name: Zone (2)
   m_TagString: Untagged
@@ -348,6 +349,21 @@ MonoBehaviour:
   m_VehicleSpawnDelay: 5
   m_RepeatScenario: 0
   m_EnemySpawner: {fileID: 1918222336}
+--- !u!114 &155665865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 155665862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cde717a80f445cf9e86fac4e7d75aa5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  markerLabel: Package
+  discoveredIcon: {fileID: 21300000, guid: 8609099db1e09724badbcdcb887b51ef, type: 3}
+  unknownIcon: {fileID: 21300000, guid: c07323fef8b760f4a89aabad593826bc, type: 3}
 --- !u!1 &239101095
 GameObject:
   m_ObjectHideFlags: 0
@@ -1240,6 +1256,7 @@ GameObject:
   m_Component:
   - component: {fileID: 590401725}
   - component: {fileID: 590401724}
+  - component: {fileID: 590401726}
   m_Layer: 0
   m_Name: Zone
   m_TagString: Untagged
@@ -1283,6 +1300,21 @@ Transform:
   - {fileID: 1348402255}
   m_Father: {fileID: 68243709}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &590401726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 590401723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cde717a80f445cf9e86fac4e7d75aa5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  markerLabel: Package
+  discoveredIcon: {fileID: 21300000, guid: 8609099db1e09724badbcdcb887b51ef, type: 3}
+  unknownIcon: {fileID: 21300000, guid: c07323fef8b760f4a89aabad593826bc, type: 3}
 --- !u!1 &696430590
 GameObject:
   m_ObjectHideFlags: 0
@@ -1538,6 +1570,7 @@ GameObject:
   m_Component:
   - component: {fileID: 950744648}
   - component: {fileID: 950744649}
+  - component: {fileID: 950744650}
   m_Layer: 0
   m_Name: Zone (3)
   m_TagString: Untagged
@@ -1581,6 +1614,21 @@ MonoBehaviour:
   m_VehicleSpawnDelay: 5
   m_RepeatScenario: 0
   m_EnemySpawner: {fileID: 1918222336}
+--- !u!114 &950744650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950744647}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cde717a80f445cf9e86fac4e7d75aa5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  markerLabel: Package
+  discoveredIcon: {fileID: 21300000, guid: 8609099db1e09724badbcdcb887b51ef, type: 3}
+  unknownIcon: {fileID: 21300000, guid: c07323fef8b760f4a89aabad593826bc, type: 3}
 --- !u!1 &1028303113
 GameObject:
   m_ObjectHideFlags: 0
@@ -1912,6 +1960,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1517180944}
   - component: {fileID: 1517180945}
+  - component: {fileID: 1517180946}
   m_Layer: 0
   m_Name: Zone (1)
   m_TagString: Untagged
@@ -1955,6 +2004,21 @@ MonoBehaviour:
   m_VehicleSpawnDelay: 5
   m_RepeatScenario: 0
   m_EnemySpawner: {fileID: 1918222336}
+--- !u!114 &1517180946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1517180943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1cde717a80f445cf9e86fac4e7d75aa5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  markerLabel: Package
+  discoveredIcon: {fileID: 21300000, guid: 8609099db1e09724badbcdcb887b51ef, type: 3}
+  unknownIcon: {fileID: 21300000, guid: c07323fef8b760f4a89aabad593826bc, type: 3}
 --- !u!1 &1634526518
 GameObject:
   m_ObjectHideFlags: 0
@@ -3168,6 +3232,127 @@ Transform:
   - {fileID: 426082438}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2054475171
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2054475176}
+  - component: {fileID: 2054475175}
+  - component: {fileID: 2054475174}
+  - component: {fileID: 2054475173}
+  - component: {fileID: 2054475172}
+  m_Layer: 5
+  m_Name: Marker HUD
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2054475172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054475171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc6e93dd2bf47b1b7648a77edea15e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameplayCamera: {fileID: 534669904}
+  hudCanvas: {fileID: 2054475175}
+  markerWidgetPrefab: {fileID: 6405649176548592630, guid: 0c69777063641dd44bb550296c69fee5, type: 3}
+  edgeOffset: 40
+  iconSize: {x: 48, y: 48}
+  clusterRadius: 60
+  stackSpacing: 8
+--- !u!114 &2054475173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054475171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &2054475174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054475171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UiScaleMode: 1
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 1920, y: 1080}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
+--- !u!223 &2054475175
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054475171}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 10
+  m_TargetDisplay: 0
+--- !u!224 &2054475176
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054475171}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0, y: 0}
 --- !u!4 &2054916055 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4818955216294603161, guid: 17d65426cd750fb40b2f1a831a1bc5da, type: 3}
@@ -14629,3 +14814,4 @@ SceneRoots:
   - {fileID: 1288824958}
   - {fileID: 112111553}
   - {fileID: 1918242449}
+  - {fileID: 2054475176}
