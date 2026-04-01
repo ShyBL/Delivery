@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5348045477365448794}
   - component: {fileID: 394734658847165529}
   - component: {fileID: 4266133015727115315}
+  - component: {fileID: 5340947289191341070}
   m_Layer: 0
   m_Name: Package
   m_TagString: Untagged
@@ -48,7 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PackageType: 0
   m_CollectFX: {fileID: 8465205215945821402, guid: 176e9da92081e744b8cf77a4646e3fd2, type: 3}
-  m_DestroyFX: {fileID: 0}
+  m_DestroySFX: {fileID: 5340947289191341070}
   m_PackageModel: {fileID: 1811255713404551434}
   m_RotationSpeed: 50
 --- !u!65 &4266133015727115315
@@ -72,6 +73,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2, y: 1, z: 2}
   m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &5340947289191341070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5927808725182616847}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -1894487999
+      Data2: 1106492377
+      Data3: -1720910425
+      Data4: -1307485297
+    Path: event:/New Event
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1001 &1577305129175825499
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using FMODUnity;
 using UnityEngine;
 
 /// <summary>
@@ -22,8 +23,8 @@ public class Package : MonoBehaviour
     [Tooltip("Particle effect to emit when this package is collected by the player.")]
     [SerializeField] private ParticleSystem m_CollectFX;
 
-    [Tooltip("Particle effect to emit when this package is destroyed by an enemy.")]
-    [SerializeField] private ParticleSystem m_DestroyFX;
+    [Tooltip("Sound effect to emit when this package is destroyed by an enemy.")]
+    [SerializeField] private StudioEventEmitter m_DestroySFX;
 
     [Tooltip("The visual model of the package (will rotate automatically).")]
     [SerializeField] private GameObject m_PackageModel;
@@ -85,8 +86,8 @@ public class Package : MonoBehaviour
 
         m_Spawner?.OnPackageCollected(gameObject);
 
-        if (m_DestroyFX != null)
-            Instantiate(m_DestroyFX, transform.position, Quaternion.identity);
+        if (m_DestroySFX != null)
+            m_DestroySFX.Play();
 
         Destroy(gameObject, 0.1f);
     }
