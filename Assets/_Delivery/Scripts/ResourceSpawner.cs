@@ -27,7 +27,7 @@ using UnityEngine;
 
 public class ResourceSpawner : BaseSpawner
 {
-    [Header("Resource Node Prefabs — one per ResourceType")]
+    [Header("Resource Node Prefabs")]
     [SerializeField] private ResourceNodeMB m_ScrapsPrefab;
     [SerializeField] private ResourceNodeMB m_RawMaterialsPrefab;
     [SerializeField] private ResourceNodeMB m_HiEndPrefab;
@@ -38,12 +38,9 @@ public class ResourceSpawner : BaseSpawner
 
     // Tracks spawned nodes so we can subscribe/unsubscribe OnDepleted
     private readonly List<ResourceNodeMB> m_ActiveNodes = new List<ResourceNodeMB>();
-
     private LocationSO m_CurrentLocation;
 
-    // -------------------------------------------------------
-    //  Public API  (called by GameManager)
-    // -------------------------------------------------------
+    #region Public API
 
     /// Clears existing nodes and spawns fresh ones for the given location.
     public void SpawnForLocation(LocationSO location)
@@ -63,14 +60,13 @@ public class ResourceSpawner : BaseSpawner
                 Destroy(node.gameObject);
             }
         }
-
         m_ActiveNodes.Clear();
         m_ActiveEntities.Clear();
     }
 
-    // -------------------------------------------------------
-    //  Spawning
-    // -------------------------------------------------------
+    #endregion
+
+    #region Spawning Logic
 
     private void SpawnAllNodes()
     {
@@ -80,7 +76,6 @@ public class ResourceSpawner : BaseSpawner
         Shuffle(availablePoints);
 
         int pointIdx = 0;
-
         foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
         {
             int abundance = m_CurrentLocation.GetAvailability(type);
@@ -112,19 +107,17 @@ public class ResourceSpawner : BaseSpawner
         m_ActiveEntities.Add(node.gameObject);
     }
 
-    // -------------------------------------------------------
-    //  Respawn on depletion
-    // -------------------------------------------------------
+    #endregion
+
+    #region Respawning
 
     private void OnNodeDepleted()
     {
-        // Clean up depleted nodes from tracking lists
         m_ActiveNodes.RemoveAll(n => n == null || n.IsDepleted);
         m_ActiveEntities.RemoveAll(e => e == null);
 
         if (m_CurrentLocation == null) return;
 
-        // Respawn one node of the first available resource type
         foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
         {
             if (m_CurrentLocation.GetAvailability(type) == 0) continue;
@@ -140,17 +133,11 @@ public class ResourceSpawner : BaseSpawner
         }
     }
 
-    // -------------------------------------------------------
-    //  BaseSpawner abstract requirement
-    // -------------------------------------------------------
+    #endregion
 
-    /// Not used directly — ResourceSpawner uses SpawnAllNodes/SpawnNode.
-    /// Required to satisfy the abstract contract from BaseSpawner.
+    #region Helpers & Overrides
+
     protected override void SpawnEntity() { }
-
-    // -------------------------------------------------------
-    //  Helpers
-    // -------------------------------------------------------
 
     private ResourceNodeMB GetPrefab(ResourceType type)
     {
@@ -173,4 +160,6 @@ public class ResourceSpawner : BaseSpawner
             list[j]  = tmp;
         }
     }
+
+    #endregion
 }
