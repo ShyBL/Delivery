@@ -29,9 +29,9 @@ public class Teleporter : MonoBehaviour
     private void TryDeliver(Player player)
     {
         if (_cooldownTimer > 0) return;
-        if (player.GetPackagesStoredCount() <= 0) return;
+       // if (player.GetPackagesStoredCount() <= 0) return;
 
-        GameManager.instance.RegisterDelivery();
+       // GameManager.instance.RegisterDelivery();
         OnTrigger.Invoke();
         _cooldownTimer = deliveryCooldown;
     }

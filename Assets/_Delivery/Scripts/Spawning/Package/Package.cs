@@ -19,13 +19,6 @@ public class Package : MonoBehaviour
     [Tooltip("Select the type of package.")]
     [SerializeField] private PackageType m_PackageType = PackageType.Standard;
 
-    [Header("Visual Settings")]
-    [Tooltip("Particle effect to emit when this package is collected by the player.")]
-    [SerializeField] private ParticleSystem m_CollectFX;
-
-    [Tooltip("Sound effect to emit when this package is destroyed by an enemy.")]
-    [SerializeField] private StudioEventEmitter m_DestroySFX;
-
     [Tooltip("The visual model of the package (will rotate automatically).")]
     [SerializeField] private GameObject m_PackageModel;
 
@@ -53,6 +46,7 @@ public class Package : MonoBehaviour
         if (other.TryGetComponent(out Player player))
         {
             CollectPackage(player);
+
         }
     }
 
@@ -62,12 +56,9 @@ public class Package : MonoBehaviour
     {
         m_IsBeingProcessed = true;
 
-        player.OnPackageCollected();
+       // player.OnPackageCollected(transform);
         m_Spawner?.OnPackageCollected(gameObject);
         
-        if (m_CollectFX != null)
-            Instantiate(m_CollectFX, transform.position, Quaternion.identity);
-
         Destroy(gameObject, 2f);
     }
     #endregion
@@ -83,12 +74,8 @@ public class Package : MonoBehaviour
     {
         if (m_IsBeingProcessed) return;
         m_IsBeingProcessed = true;
-
         m_Spawner?.OnPackageCollected(gameObject);
-
-        if (m_DestroySFX != null)
-            m_DestroySFX.Play();
-
+        
         Destroy(gameObject, 0.1f);
     }
     #endregion

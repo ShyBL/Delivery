@@ -49,6 +49,12 @@ public abstract class BaseSpawner : MonoBehaviour
         m_SpawnCenter = transform.position;
         SpawnInitialBatch();
     }
+    
+    public virtual void TriggerSpawn()
+    {
+        m_SpawnCenter = transform.position;
+        SpawnInitialBatch();
+    }
 
     /// <summary>
     /// Destroys all active entities and resets state.
