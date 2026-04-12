@@ -36,22 +36,19 @@ public class ResourceNodeMB : MonoBehaviour
     public bool         IsDepleted      => m_IsDepleted;
     public int          RemainingAmount => m_RemainingAmount;
 
-    // -------------------------------------------------------
-    //  Initialisation  (called by ResourceSpawner after Instantiate)
-    // -------------------------------------------------------
+    #region Initialisation
 
     public void Initialise(ResourceType type, int totalAmount)
     {
         m_ResourceType    = type;
         m_RemainingAmount = totalAmount;
         m_IsDepleted      = false;
-
         RefreshVisuals();
     }
 
-    // -------------------------------------------------------
-    //  Collection  (called by Player via trigger)
-    // -------------------------------------------------------
+    #endregion
+
+    #region Collection Logic
 
     public bool IsAvailable() => !m_IsDepleted && m_RemainingAmount > 0;
 
@@ -77,9 +74,9 @@ public class ResourceNodeMB : MonoBehaviour
         return true;
     }
 
-    // -------------------------------------------------------
-    //  Trigger collection
-    // -------------------------------------------------------
+    #endregion
+
+    #region Trigger Events
 
     private void OnTriggerEnter(Collider other)
     {
@@ -92,9 +89,9 @@ public class ResourceNodeMB : MonoBehaviour
         }
     }
 
-    // -------------------------------------------------------
-    //  Visuals
-    // -------------------------------------------------------
+    #endregion
+
+    #region Visuals
 
     private void RefreshVisuals()
     {
@@ -104,4 +101,6 @@ public class ResourceNodeMB : MonoBehaviour
         if (m_DepletedVisual != null)
             m_DepletedVisual.SetActive(m_IsDepleted);
     }
+
+    #endregion
 }
