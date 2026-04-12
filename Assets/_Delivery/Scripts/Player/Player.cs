@@ -22,9 +22,7 @@ public class Player : MonoBehaviour
 
     private ResourceInventory m_Inventory;
 
-    // -------------------------------------------------------
-    //  Unity lifecycle
-    // -------------------------------------------------------
+    #region Unity Lifecycle
 
     private void Awake()
     {
@@ -32,9 +30,9 @@ public class Player : MonoBehaviour
             Debug.LogError($"[Player] Missing ResourceInventory on {gameObject.name}", this);
     }
 
-    // -------------------------------------------------------
-    //  Public API
-    // -------------------------------------------------------
+    #endregion
+
+    #region Public API
 
     public ResourceInventory GetInventory() => m_Inventory;
 
@@ -60,4 +58,6 @@ public class Player : MonoBehaviour
         if (m_RobotMove != null)
             m_RobotMove.enabled = value;
     }
+
+    #endregion
 }
