@@ -27,9 +27,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    // -------------------------------------------------------
-    //  Inspector
-    // -------------------------------------------------------
+    #region Inspector
 
     [Header("Contracts")]
     [SerializeField] private List<ContractSO> m_ContractPool;
@@ -53,9 +51,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float m_StartDelay = 1f;
     [SerializeField] private float m_EndDelay   = 3f;
 
-    // -------------------------------------------------------
-    //  Runtime state
-    // -------------------------------------------------------
+    #endregion
+
+    #region Runtime State
 
     private GamePhase  m_Phase;
     private ContractSO m_SelectedContract;
@@ -64,9 +62,9 @@ public class GameManager : MonoBehaviour
     private List<ContractSO> m_DealtContracts = new List<ContractSO>();
     private List<LocationSO> m_DealtLocations = new List<LocationSO>();
 
-    // -------------------------------------------------------
-    //  Unity lifecycle
-    // -------------------------------------------------------
+    #endregion
+
+    #region Unity Lifecycle
 
     private void Awake()
     {
@@ -90,15 +88,14 @@ public class GameManager : MonoBehaviour
             m_BoardView.OnConfirmClicked -= HandleBoardConfirmed;
     }
 
-    // -------------------------------------------------------
-    //  Phase: Board
-    // -------------------------------------------------------
+    #endregion
+
+    #region Phase: Board
 
     private void OpenBoard()
     {
         m_Phase = GamePhase.Board;
 
-        // Reset previous selections
         foreach (var c in m_DealtContracts) c.ResetState();
         foreach (var l in m_DealtLocations) l.ResetState();
 
@@ -112,24 +109,19 @@ public class GameManager : MonoBehaviour
         m_BoardView.SetConfirmEnabled(false);
         m_BoardView.Show();
         m_HUDView.gameObject.SetActive(false);
-
-        Debug.Log("[GameManager] Board open.");
     }
 
-    // -------------------------------------------------------
-    //  Phase: Scavenging
-    // -------------------------------------------------------
+    #endregion
+
+    #region Phase: Scavenging
 
     private void StartScavenging()
     {
         m_Phase = GamePhase.Scavenging;
-
         m_BoardView.Hide();
         m_HUDView.gameObject.SetActive(true);
-
         m_Player.GetInventory().Clear();
 
-        // Subscribe HUD to inventory changes for the duration of this run
         m_Player.GetInventory().OnChanged += RefreshHUD;
         RefreshHUD();
 
@@ -138,16 +130,15 @@ public class GameManager : MonoBehaviour
         Debug.Log($"[GameManager] Scavenging -> {m_SelectedLocation} | {m_SelectedContract}");
     }
 
-    // -------------------------------------------------------
-    //  Board selection (called by ContractCardView / LevelCardView)
-    // -------------------------------------------------------
+    #endregion
+
+    #region Board Selection
 
     public void OnContractSelected(ContractSO contract)
     {
         if (m_SelectedContract != null) m_SelectedContract.Deselect();
         m_SelectedContract = contract;
         m_SelectedContract.Select();
-
         UpdateConfirmButton();
     }
 
@@ -156,7 +147,6 @@ public class GameManager : MonoBehaviour
         if (m_SelectedLocation != null) m_SelectedLocation.Deselect();
         m_SelectedLocation = location;
         m_SelectedLocation.Select();
-
         UpdateConfirmButton();
     }
 
@@ -183,9 +173,9 @@ public class GameManager : MonoBehaviour
         StartScavenging();
     }
 
-    // -------------------------------------------------------
-    //  HUD refresh
-    // -------------------------------------------------------
+    #endregion
+
+    #region HUD Refresh
 
     private void RefreshHUD()
     {
@@ -193,9 +183,9 @@ public class GameManager : MonoBehaviour
         m_HUDView.UpdateChecklist(m_SelectedContract, m_Player.GetInventory());
     }
 
-    // -------------------------------------------------------
-    //  Run complete (call this when the player finishes / time runs out)
-    // -------------------------------------------------------
+    #endregion
+
+    #region Run Management
 
     public void OnRunComplete()
     {
@@ -210,9 +200,9 @@ public class GameManager : MonoBehaviour
         OpenBoard();
     }
 
-    // -------------------------------------------------------
-    //  Contract dealing
-    // -------------------------------------------------------
+    #endregion
+
+    #region Dealing Logic
 
     private List<ContractSO> DealContracts(int count)
     {
@@ -232,10 +222,6 @@ public class GameManager : MonoBehaviour
 
         return dealt;
     }
-
-    // -------------------------------------------------------
-    //  Location dealing
-    // -------------------------------------------------------
 
     private List<LocationSO> DealLocations()
     {
@@ -258,16 +244,12 @@ public class GameManager : MonoBehaviour
         return dealt;
     }
 
-    // -------------------------------------------------------
-    //  Accessors
-    // -------------------------------------------------------
+    #endregion
+
+    #region Accessors & Helpers
 
     public ContractSO GetSelectedContract() => m_SelectedContract;
     public LocationSO GetSelectedLocation() => m_SelectedLocation;
-
-    // -------------------------------------------------------
-    //  Helpers
-    // -------------------------------------------------------
 
     private void Shuffle<T>(List<T> list)
     {
@@ -279,4 +261,6 @@ public class GameManager : MonoBehaviour
             list[j]  = tmp;
         }
     }
+
+    #endregion
 }
