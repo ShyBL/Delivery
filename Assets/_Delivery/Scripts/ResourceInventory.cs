@@ -31,18 +31,16 @@ public class ResourceInventory : MonoBehaviour
 
     public int MaxCapacity => m_MaxCapacity;
 
-    // -------------------------------------------------------
-    //  Unity lifecycle
-    // -------------------------------------------------------
+    #region Unity Lifecycle
 
     private void OnEnable()
     {
         ResetAll();
     }
 
-    // -------------------------------------------------------
-    //  Mutation
-    // -------------------------------------------------------
+    #endregion
+
+    #region Mutation
 
     public void Add(ResourceType type, int amount)
     {
@@ -71,9 +69,9 @@ public class ResourceInventory : MonoBehaviour
         OnChanged?.Invoke();
     }
 
-    // -------------------------------------------------------
-    //  Query
-    // -------------------------------------------------------
+    #endregion
+
+    #region Query
 
     public int  GetCount(ResourceType type)        => GetStock(type);
     public bool Has(ResourceType type, int amount) => GetStock(type) >= amount;
@@ -88,9 +86,9 @@ public class ResourceInventory : MonoBehaviour
         return true;
     }
 
-    // -------------------------------------------------------
-    //  Helpers
-    // -------------------------------------------------------
+    #endregion
+
+    #region Helpers
 
     private int GetStock(ResourceType type)
     {
@@ -119,4 +117,6 @@ public class ResourceInventory : MonoBehaviour
         m_RawMaterials      = 0;
         m_HighEndComponents = 0;
     }
+
+    #endregion
 }
