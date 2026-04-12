@@ -1,174 +1,282 @@
-using System;
-using System.Collections;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+// ============================================================
+//  GameManager.cs
+//  Place in: Assets/_Delivery/Scripts/
+//  Layer   : Controller — MonoBehaviour, singleton
+//
+//  Merges: MissionController + LevelController + BoardController
+//
+//  Phases:
+//    Board      -> player picks a ContractSO and LocationSO
+//    Scavenging -> player collects resources in the level
+//
+//  Inspector wiring:
+//    - Contract pool     (List<ContractSO>)
+//    - Fixed locations   (List<LocationSO>)
+//    - Wildcard pool     (List<LocationSO>)
+//    - ResourceSpawner   ref
+//    - BoardView         ref
+//    - HUDView           ref
+//    - Player            ref
+// ============================================================
 
-/// <summary>
-/// Manages the game state and mission flow for the Delivery game.
-/// Starts in MainMenu state and waits for DebugWindow to call StartGame().
-/// After mission completion (win or lose), reloads the scene and returns to MainMenu state.
-/// </summary>
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance;
-    
-    private GameState m_CurrentState;                       // State the game is currently in
-    private WaitForSeconds m_StartWait;                     
-    private WaitForSeconds m_EndWait;
-    public float m_StartDelay = 3f;                         // The delay between the start of RoundStarting and RoundPlaying phases.
-    public float m_EndDelay = 3f;                           // The delay between the end of RoundPlaying and RoundEnding phases.
-    
-    [Header("Delivery Mission Settings")]
-    public int m_TotalPackagesToDeliver = 10;               // Total packages needed to complete mission
-    public float m_MissionTimeLimit = 300f;                 // 5 minutes mission time limit
-    
-    private int m_PackagesDelivered = 0;                    // Current number of packages delivered
-    public float m_MissionTimer = 0f;                       // Current mission elapsed time
+    public static GameManager Instance { get; private set; }
 
-    public MissionHUD HUD;
-    public Player player;
+    // -------------------------------------------------------
+    //  Inspector
+    // -------------------------------------------------------
+
+    [Header("Contracts")]
+    [SerializeField] private List<ContractSO> m_ContractPool;
+    [SerializeField] private int              m_ContractsDealt = 3;
+
+    [Header("Locations — Fixed Slots")]
+    [Tooltip("Always dealt. Recommend: IndustrialRuin, MiningZone")]
+    [SerializeField] private List<LocationSO> m_FixedLocations;
+
+    [Header("Locations — Wildcard Pool")]
+    [Tooltip("One drawn randomly per run")]
+    [SerializeField] private List<LocationSO> m_WildcardPool;
+
+    [Header("Scene References")]
+    [SerializeField] private ResourceSpawner m_ResourceSpawner;
+    [SerializeField] private BoardView       m_BoardView;
+    [SerializeField] private HUDView         m_HUDView;
+    [SerializeField] private Player          m_Player;
+
+    [Header("Timing")]
+    [SerializeField] private float m_StartDelay = 1f;
+    [SerializeField] private float m_EndDelay   = 3f;
+
+    // -------------------------------------------------------
+    //  Runtime state
+    // -------------------------------------------------------
+
+    private GamePhase  m_Phase;
+    private ContractSO m_SelectedContract;
+    private LocationSO m_SelectedLocation;
+
+    private List<ContractSO> m_DealtContracts = new List<ContractSO>();
+    private List<LocationSO> m_DealtLocations = new List<LocationSO>();
+
+    // -------------------------------------------------------
+    //  Unity lifecycle
+    // -------------------------------------------------------
 
     private void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-            player = FindFirstObjectByType<Player>();
-            m_CurrentState = GameState.MainMenu;
-            m_StartWait = new WaitForSeconds (m_StartDelay);
-            m_EndWait = new WaitForSeconds (m_EndDelay); 
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
+        Instance = this;
     }
-    
+
     private void Start()
     {
-        // Freeze the game until DebugWindow calls StartGame()
-        Time.timeScale = 0f;
-        Debug.Log("GameManager: Game PAUSED in MainMenu state. Configure settings and click 'Apply to Scene' to start.");
-    }
-    
-    /// <summary>
-    /// Called by DebugWindow when "Apply to Scene" is clicked.
-    /// Transitions from MainMenu to active game state and unfreezes time.
-    /// </summary>
-    public void StartGame()
-    {
-        // Unfreeze time when starting the game
-        Time.timeScale = 1f;
-        ChangeGameState(GameState.Game);
+        m_BoardView.OnConfirmClicked += HandleBoardConfirmed;
+        OpenBoard();
     }
 
-    private void ChangeGameState(GameState newState)
+    private void OnDestroy()
     {
-        m_CurrentState = newState;
+        if (m_BoardView != null)
+            m_BoardView.OnConfirmClicked -= HandleBoardConfirmed;
+    }
 
-        switch (m_CurrentState)
+    // -------------------------------------------------------
+    //  Phase: Board
+    // -------------------------------------------------------
+
+    private void OpenBoard()
+    {
+        m_Phase = GamePhase.Board;
+
+        // Reset previous selections
+        foreach (var c in m_DealtContracts) c.ResetState();
+        foreach (var l in m_DealtLocations) l.ResetState();
+
+        m_SelectedContract = null;
+        m_SelectedLocation = null;
+
+        m_DealtContracts = DealContracts(m_ContractsDealt);
+        m_DealtLocations = DealLocations();
+
+        m_BoardView.Populate(m_DealtContracts, m_DealtLocations);
+        m_BoardView.SetConfirmEnabled(false);
+        m_BoardView.Show();
+        m_HUDView.gameObject.SetActive(false);
+
+        Debug.Log("[GameManager] Board open.");
+    }
+
+    // -------------------------------------------------------
+    //  Phase: Scavenging
+    // -------------------------------------------------------
+
+    private void StartScavenging()
+    {
+        m_Phase = GamePhase.Scavenging;
+
+        m_BoardView.Hide();
+        m_HUDView.gameObject.SetActive(true);
+
+        m_Player.GetInventory().Clear();
+
+        // Subscribe HUD to inventory changes for the duration of this run
+        m_Player.GetInventory().OnChanged += RefreshHUD;
+        RefreshHUD();
+
+        m_ResourceSpawner.SpawnForLocation(m_SelectedLocation);
+
+        Debug.Log($"[GameManager] Scavenging -> {m_SelectedLocation} | {m_SelectedContract}");
+    }
+
+    // -------------------------------------------------------
+    //  Board selection (called by ContractCardView / LevelCardView)
+    // -------------------------------------------------------
+
+    public void OnContractSelected(ContractSO contract)
+    {
+        if (m_SelectedContract != null) m_SelectedContract.Deselect();
+        m_SelectedContract = contract;
+        m_SelectedContract.Select();
+
+        UpdateConfirmButton();
+    }
+
+    public void OnLocationSelected(LocationSO location)
+    {
+        if (m_SelectedLocation != null) m_SelectedLocation.Deselect();
+        m_SelectedLocation = location;
+        m_SelectedLocation.Select();
+
+        UpdateConfirmButton();
+    }
+
+    private void UpdateConfirmButton()
+    {
+        bool ready = m_SelectedContract != null && m_SelectedLocation != null;
+        m_BoardView.SetConfirmEnabled(ready);
+    }
+
+    private void HandleBoardConfirmed()
+    {
+        if (m_SelectedContract == null || m_SelectedLocation == null)
         {
-            case GameState.Game:
-                GameStart();
-                break;
+            Debug.LogWarning("[GameManager] Confirm fired but selection is incomplete.");
+            return;
         }
+
+        StartCoroutine(TransitionToScavenging());
     }
 
-    private void GameStart()
+    private IEnumerator TransitionToScavenging()
     {
-        // Create the delays so they only have to be made once.
-        m_StartWait = new WaitForSeconds (m_StartDelay);
-        m_EndWait = new WaitForSeconds (m_EndDelay);
-        
-        StartCoroutine (GameLoop());
-    }
-    
-    /// <summary>
-    /// This is called from start and will run each phase of the game one after another.
-    /// </summary>
-    private IEnumerator GameLoop()
-    {
-        // Start the mission
-        yield return StartCoroutine(MissionStarting());
-
-        // Run the active mission phase
-        yield return StartCoroutine(MissionActive());
-
-        // End the mission and show results
-        yield return StartCoroutine(MissionEnding());
-
-        // Return to MainMenu state by reloading the scene
-        Debug.Log("Mission ended. Reloading scene to MainMenu state...");
-        
-        // Reset time scale before reload so next session starts frozen
-        Time.timeScale = 0f;
-        
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        yield return new WaitForSeconds(m_StartDelay);
+        StartScavenging();
     }
 
-    private IEnumerator MissionStarting()
+    // -------------------------------------------------------
+    //  HUD refresh
+    // -------------------------------------------------------
+
+    private void RefreshHUD()
     {
-        Debug.Log("Starting Mission");
-        yield return m_StartWait;
+        m_HUDView.UpdateInventory(m_Player.GetInventory());
+        m_HUDView.UpdateChecklist(m_SelectedContract, m_Player.GetInventory());
     }
-    
-    private IEnumerator MissionActive()
+
+    // -------------------------------------------------------
+    //  Run complete (call this when the player finishes / time runs out)
+    // -------------------------------------------------------
+
+    public void OnRunComplete()
     {
-        m_PackagesDelivered = 0;
-        m_MissionTimer = 0f;
-        
-        Debug.Log("Mission Active - Deliver packages before time runs out!");
-        
-        while (!MissionComplete() && !MissionFailed())
+        m_Player.GetInventory().OnChanged -= RefreshHUD;
+        m_ResourceSpawner.ClearNodes();
+        StartCoroutine(TransitionToBoard());
+    }
+
+    private IEnumerator TransitionToBoard()
+    {
+        yield return new WaitForSeconds(m_EndDelay);
+        OpenBoard();
+    }
+
+    // -------------------------------------------------------
+    //  Contract dealing
+    // -------------------------------------------------------
+
+    private List<ContractSO> DealContracts(int count)
+    {
+        if (m_ContractPool == null || m_ContractPool.Count == 0)
         {
-            m_MissionTimer += Time.deltaTime;
-            yield return null;
+            Debug.LogError("[GameManager] Contract pool is empty — assign ContractSOs in Inspector.");
+            return new List<ContractSO>();
         }
-    }
-    
-    
-    private IEnumerator MissionEnding()
-    {
-        if (MissionComplete())
-        {
-            Debug.Log($"MISSION SUCCESS! Delivered {m_PackagesDelivered}/{m_TotalPackagesToDeliver} packages in {m_MissionTimer:F1} seconds!");
-        }
-        else if (MissionFailed())
-        {
-            Debug.Log($"MISSION FAILED! Time limit reached. Only delivered {m_PackagesDelivered}/{m_TotalPackagesToDeliver} packages.");
-        }
-        
-        yield return m_EndWait;
-    }
-    
-    private bool MissionComplete()
-    {
-        return m_PackagesDelivered >= m_TotalPackagesToDeliver;
+
+        var shuffled = new List<ContractSO>(m_ContractPool);
+        Shuffle(shuffled);
+
+        var dealt = new List<ContractSO>();
+        int take  = Mathf.Min(count, shuffled.Count);
+        for (int i = 0; i < take; i++)
+            dealt.Add(shuffled[i]);
+
+        return dealt;
     }
 
-    private bool MissionFailed()
+    // -------------------------------------------------------
+    //  Location dealing
+    // -------------------------------------------------------
+
+    private List<LocationSO> DealLocations()
     {
-        return m_MissionTimer >= m_MissionTimeLimit;
-    }
-    
-    /// <summary>
-    /// Called by Package when collected by the player.
-    /// Increments delivery count and updates HUD.
-    /// </summary>
-    public void RegisterDelivery()
-    {
-        m_PackagesDelivered++;
-        player.m_Packages--;
-        
-        HUD?.SetPackageProgress(m_PackagesDelivered, m_TotalPackagesToDeliver);
-        
-        Debug.Log($"Package collected! Progress: {m_PackagesDelivered}/{m_TotalPackagesToDeliver}");
+        var dealt = new List<LocationSO>();
+
+        if (m_FixedLocations == null || m_FixedLocations.Count == 0)
+        {
+            Debug.LogError("[GameManager] Fixed locations list is empty — assign LocationSOs in Inspector.");
+            return dealt;
+        }
+
+        foreach (var loc in m_FixedLocations)
+            dealt.Add(loc);
+
+        if (m_WildcardPool != null && m_WildcardPool.Count > 0)
+            dealt.Add(m_WildcardPool[Random.Range(0, m_WildcardPool.Count)]);
+        else
+            Debug.LogWarning("[GameManager] Wildcard pool is empty — only fixed slots dealt.");
+
+        return dealt;
     }
 
-    public int GetDeliveryCount()
+    // -------------------------------------------------------
+    //  Accessors
+    // -------------------------------------------------------
+
+    public ContractSO GetSelectedContract() => m_SelectedContract;
+    public LocationSO GetSelectedLocation() => m_SelectedLocation;
+
+    // -------------------------------------------------------
+    //  Helpers
+    // -------------------------------------------------------
+
+    private void Shuffle<T>(List<T> list)
     {
-        return m_PackagesDelivered;
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j    = Random.Range(0, i + 1);
+            T   tmp  = list[i];
+            list[i]  = list[j];
+            list[j]  = tmp;
+        }
     }
 }

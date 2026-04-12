@@ -1,38 +1,63 @@
-﻿using System;
-using FMODUnity;
-using UnityEngine;
-using UnityEngine.UI;
+﻿// ============================================================
+//  Player.cs
+//  Place in: Assets/_Delivery/Scripts/
+//  Layer   : Controller — MonoBehaviour
+//
+//  Manages the player-controlled delivery bot.
+//  Owns ResourceInventory (required sibling component).
+//  Exposes GetInventory() for GameManager and HUDView.
+//
+//  Attach to: Player root GameObject
+//  Requires : ResourceInventory (auto-added via RequireComponent)
+// ============================================================
 
-/// <summary>
-/// Manages the player-controlled delivery bot.
-/// Tracks collected packages, handles collection events, and manages player control state.
-/// </summary>
+using UnityEngine;
+
+[RequireComponent(typeof(ResourceInventory))]
 public class Player : MonoBehaviour
 {
-    public RobotAnimate robotAnimate;
-    public RobotMove robotMove;
-    public ResourcesInventory robotInventory;
+    [Header("References")]
+    [SerializeField] private RobotAnimate m_RobotAnimate;
+    [SerializeField] private RobotMove    m_RobotMove;
 
-    private void Start()
+    private ResourceInventory m_Inventory;
+
+    // -------------------------------------------------------
+    //  Unity lifecycle
+    // -------------------------------------------------------
+
+    private void Awake()
     {
-        // TODO: Temp way to spawn all resources
-        foreach (var item in FindObjectsOfType<ResourceSpawner>())
-        {
-            item.TriggerSpawn();
-        }
+        if (!TryGetComponent(out m_Inventory))
+            Debug.LogError($"[Player] Missing ResourceInventory on {gameObject.name}", this);
     }
 
-    /// <summary>
+    // -------------------------------------------------------
+    //  Public API
+    // -------------------------------------------------------
+
+    public ResourceInventory GetInventory() => m_Inventory;
+
+    /// Called by ResourceNodeMB.OnTriggerEnter when the player
+    /// walks over a resource node.
+    public void OnResourceCollected(ResourceType type, int amount)
+    {
+        if (m_Inventory.IsAtCapacity())
+        {
+            Debug.Log("[Player] Inventory full — cannot collect more.");
+            return;
+        }
+
+        m_Inventory.Add(type, amount);
+
+        if (m_RobotAnimate != null)
+            m_RobotAnimate.AnimatePickup();
+    }
+
     /// Enables or disables player movement control.
-    /// </summary>
-    /// <param name="value">True to enable control, false to disable.</param>
     public void ToggleControl(bool value)
     {
-        if (robotMove != null)
-            robotMove.enabled = value;
+        if (m_RobotMove != null)
+            m_RobotMove.enabled = value;
     }
-    
-   
 }
-
-

@@ -32,7 +32,7 @@ public abstract class BaseSpawner : MonoBehaviour
 
     protected virtual void Start()
     {
-        m_GameManager = GameManager.instance;
+        m_GameManager = GameManager.Instance;
 
         if (m_GameManager == null)
             Debug.LogWarning($"{GetType().Name}: No GameManager found in scene.");
