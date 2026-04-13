@@ -21,9 +21,8 @@ public class ResourceNodeMB : MonoBehaviour
     [SerializeField] private ResourceType m_ResourceType;
     [SerializeField] private int          m_AmountPerCollect = 1;
 
-    [Header("Visuals")]
-    [SerializeField] private GameObject m_ActiveVisual;
-    [SerializeField] private GameObject m_DepletedVisual;
+    [HideInInspector]
+    [SerializeField] private GameObject m_ActiveVisual, m_DepletedVisual;
 
     // Fired when the node has been fully collected.
     // ResourceSpawner subscribes to this to trigger a respawn.
@@ -43,7 +42,7 @@ public class ResourceNodeMB : MonoBehaviour
         m_ResourceType    = type;
         m_RemainingAmount = totalAmount;
         m_IsDepleted      = false;
-        RefreshVisuals();
+      //  RefreshVisuals();
     }
 
     #endregion
@@ -67,7 +66,7 @@ public class ResourceNodeMB : MonoBehaviour
         if (m_RemainingAmount <= 0)
         {
             m_IsDepleted = true;
-            RefreshVisuals();
+          //  RefreshVisuals();
             OnDepleted?.Invoke();
         }
 

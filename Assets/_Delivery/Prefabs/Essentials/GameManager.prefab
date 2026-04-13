@@ -63,6 +63,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7981259875700266424}
   - component: {fileID: 1208383526136569799}
+  - component: {fileID: 6962256411045283843}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -102,13 +103,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84a8e5a314e24d2182b902d270dfc91d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_ContractPool:
+  - {fileID: 11400000, guid: a44e702a295ee784ebc4b645ca8f1e38, type: 2}
+  - {fileID: 11400000, guid: d9d7b2c728848d040a08cc96be040c48, type: 2}
+  - {fileID: 11400000, guid: 1fa47e6d3c9e5314d8cb4cb5a531b437, type: 2}
+  m_ContractsDealt: 3
+  m_FixedLocations:
+  - {fileID: 11400000, guid: 755cfada8573ad748b80e57a7559f8a6, type: 2}
+  - {fileID: 11400000, guid: bcea89d50d86c114a962ac559b1ce91d, type: 2}
+  - {fileID: 11400000, guid: 7bb02481af5d6024dab432dec73e190d, type: 2}
+  m_WildcardPool: []
+  m_ResourceSpawner: {fileID: 0}
+  m_BoardView: {fileID: 0}
+  m_HUDView: {fileID: 0}
+  m_Player: {fileID: 0}
   m_StartDelay: 3
   m_EndDelay: 3
-  m_TotalPackagesToDeliver: 10
-  m_MissionTimeLimit: 300
-  m_MissionTimer: 0
-  HUD: {fileID: 0}
-  player: {fileID: 0}
+--- !u!114 &6962256411045283843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 901700724479851713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 729c600de9d7a03439b018a12401f84e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MaxCapacity: 20
+  m_Scraps: 0
+  m_RawMaterials: 0
+  m_HighEndComponents: 0
 --- !u!1 &1426523719734428000
 GameObject:
   m_ObjectHideFlags: 0

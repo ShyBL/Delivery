@@ -18,6 +18,8 @@ using TMPro;
 
 public class ContractCardView : MonoBehaviour
 {
+    #region Inspector
+    
     [Header("Labels")]
     [SerializeField] private TextMeshProUGUI m_FactionLabel;
     [SerializeField] private TextMeshProUGUI m_NameLabel;
@@ -36,19 +38,19 @@ public class ContractCardView : MonoBehaviour
 
     private ContractSO m_Bound;
 
-    // -------------------------------------------------------
-    //  Unity lifecycle
-    // -------------------------------------------------------
-
+    #endregion
+    
+    #region Unity lifecycle
+    
     private void Awake()
     {
         m_Button.onClick.AddListener(OnClicked);
     }
 
-    // -------------------------------------------------------
-    //  Binding  (called by BoardView.Populate)
-    // -------------------------------------------------------
-
+    #endregion
+    
+    #region Binding  (called by BoardView.Populate)
+    
     public void Bind(ContractSO contract)
     {
         m_Bound = contract;
@@ -65,8 +67,8 @@ public class ContractCardView : MonoBehaviour
 
         foreach (var req in m_Bound.GetRequirements())
         {
-            var line = Instantiate(m_RequirementLinePrefab, m_RequirementsContainer);
-            line.text = req.ToString();
+            var textMeshPro = Instantiate(m_RequirementLinePrefab, m_RequirementsContainer);
+            textMeshPro.text = req.ToString();
         }
 
         RefreshHighlight();
@@ -75,10 +77,10 @@ public class ContractCardView : MonoBehaviour
     public void RefreshHighlight() =>
         m_Highlight.color = m_Bound.IsSelected() ? m_SelectedColor : m_NormalColor;
 
-    // -------------------------------------------------------
-    //  Interaction
-    // -------------------------------------------------------
-
+    #endregion
+    
+    #region Interaction
+    
     private void OnClicked()
     {
         GameManager.Instance.OnContractSelected(m_Bound);
@@ -87,4 +89,6 @@ public class ContractCardView : MonoBehaviour
         foreach (var card in FindObjectsByType<ContractCardView>(FindObjectsSortMode.None))
             card.RefreshHighlight();
     }
+    
+    #endregion
 }

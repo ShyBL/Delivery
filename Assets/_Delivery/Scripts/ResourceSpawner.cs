@@ -41,7 +41,7 @@ public class ResourceSpawner : BaseSpawner
     private LocationSO m_CurrentLocation;
 
     #region Public API
-
+   
     /// Clears existing nodes and spawns fresh ones for the given location.
     public void SpawnForLocation(LocationSO location)
     {
@@ -67,7 +67,7 @@ public class ResourceSpawner : BaseSpawner
     #endregion
 
     #region Spawning Logic
-
+    [ContextMenu("Spawn")]
     private void SpawnAllNodes()
     {
         if (m_CurrentLocation == null) return;

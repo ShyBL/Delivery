@@ -9,6 +9,7 @@
 //  Create via: Right-click > Create > Delivery > ContractSO
 // ============================================================
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,17 +28,20 @@ public class ContractSO : ScriptableObject, ISelectable
     // Runtime selection state — reset by GameManager each Board phase
     private bool m_IsSelected;
 
-    // -------------------------------------------------------
-    //  ISelectable
-    // -------------------------------------------------------
+    private void OnDisable()
+    {
+        ResetState();
+    }
+
+    #region ISelectable
 
     public void Select()     => m_IsSelected = true;
     public void Deselect()   => m_IsSelected = false;
     public bool IsSelected() => m_IsSelected;
-
-    // -------------------------------------------------------
-    //  Query
-    // -------------------------------------------------------
+    
+    #endregion
+    
+    #region Query
 
     public List<ResourceRequirement> GetRequirements() =>
         new List<ResourceRequirement>(requirements);
@@ -47,7 +51,9 @@ public class ContractSO : ScriptableObject, ISelectable
 
     /// Resets runtime state — call at the start of each Board phase.
     public void ResetState() => m_IsSelected = false;
-
+    
     public override string ToString() =>
         $"[ContractSO:{displayName}] {faction}";
+    
+    #endregion
 }

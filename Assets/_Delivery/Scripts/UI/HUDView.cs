@@ -28,7 +28,7 @@ public class HUDView : MonoBehaviour
 
     [Header("Contract Checklist")]
     [SerializeField] private Transform       m_ChecklistContainer;
-    [SerializeField] private TextMeshProUGUI m_ChecklistLinePrefab;
+    [SerializeField] private GameObject m_ChecklistLinePrefab;
 
     // -------------------------------------------------------
     //  Inventory  (driven by ResourceInventory.OnChanged)
@@ -59,7 +59,8 @@ public class HUDView : MonoBehaviour
             int  have = inventory.GetCount(req.resourceType);
             bool met  = have >= req.amount;
 
-            var line  = Instantiate(m_ChecklistLinePrefab, m_ChecklistContainer);
+            var obj  = Instantiate(m_ChecklistLinePrefab, m_ChecklistContainer); 
+            var line = obj.GetComponent<TextMeshProUGUI>();
             line.text  = $"{(met ? "✓" : "○")}  {req.resourceType}  {have} / {req.amount}";
             line.color = met ? Color.green : Color.white;
         }

@@ -30,6 +30,11 @@ public class LocationSO : ScriptableObject, ISelectable
     // Runtime selection state — reset by GameManager each Board phase
     private bool m_IsSelected;
 
+    private void OnDisable()
+    {
+        ResetState();
+    }
+    
     // -------------------------------------------------------
     //  ISelectable
     // -------------------------------------------------------

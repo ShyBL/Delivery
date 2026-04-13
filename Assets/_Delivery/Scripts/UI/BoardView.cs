@@ -1,21 +1,20 @@
-// ============================================================
-//  BoardView.cs
-//  Place in: Assets/_Delivery/Scripts/
-//  Layer   : View — MonoBehaviour
-//
-//  The central selection screen shown at the start of each run.
-//  Instantiates ContractCardView and LevelCardView prefabs into
-//  their containers and fires OnConfirmClicked to GameManager.
-//
-//  Attach to: Board UI Panel (Canvas child)
-//  Inspector : assign card prefabs, containers, confirm button
-// ============================================================
-
 using System.Collections.Generic;
 using UnityEngine;
-
+/// <summary>
+/// Place in: Assets/_Delivery/Scripts/
+/// Layer   : View — MonoBehaviour
+///
+/// The central selection screen shown at the start of each run.
+/// Instantiates ContractCardView and LevelCardView prefabs into
+/// their containers and fires OnConfirmClicked to GameManager.
+///
+/// Attach to: Board UI Panel (Canvas child)
+/// Inspector : assign card prefabs, containers, confirm button
+/// </summary>
 public class BoardView : MonoBehaviour
 {
+    #region Inspector
+    
     [Header("Card Containers")]
     [Tooltip("Parent Transform for contract cards (use HorizontalLayoutGroup)")]
     [SerializeField] private Transform _contractContainer;
@@ -34,20 +33,17 @@ public class BoardView : MonoBehaviour
 
     private readonly List<ContractCardView> _contractCards = new List<ContractCardView>();
     private readonly List<LevelCardView>    _levelCards    = new List<LevelCardView>();
-
-    // -------------------------------------------------------
-    //  Unity lifecycle
-    // -------------------------------------------------------
-
+    
+    #endregion
+    
+    #region Unity lifecycle
     private void Start()
     {
         _confirmButton.OnClicked += () => OnConfirmClicked?.Invoke();
     }
-
-    // -------------------------------------------------------
-    //  Population  (called by GameManager at the start of each run)
-    // -------------------------------------------------------
-
+    #endregion
+    
+    #region Population  (called by GameManager at the start of each run)
     public void Populate(List<ContractSO> contracts, List<LocationSO> locations)
     {
         ClearCards();
@@ -66,21 +62,18 @@ public class BoardView : MonoBehaviour
             _levelCards.Add(card);
         }
     }
-
-    // -------------------------------------------------------
-    //  Visibility / state
-    // -------------------------------------------------------
-
+    #endregion
+    
+    #region Visibility / state
     public void Show() => gameObject.SetActive(true);
     public void Hide() => gameObject.SetActive(false);
 
     public void SetConfirmEnabled(bool enabled) =>
         _confirmButton.SetEnabled(enabled);
 
-    // -------------------------------------------------------
-    //  Helpers
-    // -------------------------------------------------------
-
+    #endregion
+    
+    #region Helpers
     private void ClearCards()
     {
         foreach (var c in _contractCards)
@@ -92,4 +85,5 @@ public class BoardView : MonoBehaviour
         _contractCards.Clear();
         _levelCards.Clear();
     }
+    #endregion
 }
