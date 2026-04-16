@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fafab542e080a24a8c700277ef42a55, type: 3}
   m_Name: Test Location
   m_EditorClassIdentifier: 
-  locationName: Location Name
-  locationType: 0
+  locationName: 1
+  locationType: 4
   isWildcard: 0
   resourceAvailability:
   - resourceType: 0
-    abundance: 1
+    abundance: 3
   - resourceType: 1
-    abundance: 2
+    abundance: 3
   - resourceType: 2
     abundance: 3

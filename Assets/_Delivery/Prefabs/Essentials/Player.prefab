@@ -412,7 +412,7 @@ GameObject:
   - component: {fileID: 5863275021968834939}
   - component: {fileID: 3508857111682058860}
   - component: {fileID: 7556618313858416744}
-  - component: {fileID: 7171827798002941844}
+  - component: {fileID: 310263012249717095}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -486,18 +486,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7681719dc314a96bbc60a5ac5284381, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  robotAnimate: {fileID: 2198146989698042880}
-  robotMove: {fileID: 3508857111682058860}
-  m_Packages: 0
-  m_TotalPackages: 10
-  m_ProgressBar: {fileID: 824046385172019439}
-  m_ProgressFillImage: {fileID: 2597148532056594705}
-  m_TimeNormalColor: {r: 1, g: 1, b: 1, a: 1}
-  m_TimeLowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  m_TimeCriticalColor: {r: 1, g: 0, b: 0, a: 1}
-  m_ProgressFillColor: {r: 0, g: 1, b: 0, a: 1}
-  m_CollectFX: {fileID: 8465205215945821402, guid: 176e9da92081e744b8cf77a4646e3fd2, type: 3}
-  m_CollectSFX: {fileID: 7171827798002941844}
+  m_RobotAnimate: {fileID: 0}
+  m_RobotMove: {fileID: 3508857111682058860}
 --- !u!114 &3508857111682058860
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -534,7 +524,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.5, y: 1.5, z: 1.5}
   m_Center: {x: 0, y: 0.5, z: 0}
---- !u!114 &7171827798002941844
+--- !u!114 &310263012249717095
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -543,28 +533,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2211415503379579971}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Script: {fileID: 11500000, guid: 729c600de9d7a03439b018a12401f84e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: -1894487999
-      Data2: 1106492377
-      Data3: -1720910425
-      Data4: -1307485297
-    Path: event:/New Event
-  Event: 
-  EventPlayTrigger: 0
-  EventStopTrigger: 0
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: 1
-  OverrideMaxDistance: 20
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceInventory
+  m_MaxCapacity: 20
+  m_Scraps: 0
+  m_RawMaterials: 0
+  m_HighEndComponents: 0
 --- !u!1 &2851979401416942009
 GameObject:
   m_ObjectHideFlags: 0

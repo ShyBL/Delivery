@@ -3,23 +3,22 @@
 //  Place in: Assets/_Delivery/Scripts/
 //  Layer   : Controller — MonoBehaviour, inherits BaseSpawner
 //
-//  Spawns ResourceNodeMB prefabs based on a LocationSO's
-//  resource availability profile.
+//  Manages one ResourceType for a level.
+//  On SpawnForLocation(), reads the abundance for its type from
+//  the LocationSO and activates that many nodes, scattering
+//  their positions using BaseSpawner.GetRandomSpawnPosition().
 //
-//  Abundance -> node count mapping:
+//  Abundance -> active node count:
 //    0 (none)     -> 0 nodes
-//    1 (scarce)   -> 2 nodes
-//    2 (moderate) -> 4 nodes
-//    3 (abundant) -> 6 nodes
+//    1 (scarce)   -> 1 node
+//    2 (moderate) -> 2 nodes
+//    3 (abundant) -> 3 nodes
 //
-//  When a node fires OnDepleted, this spawner respawns
-//  a fresh node of any available type at a new position.
-//
-//  Triggered by GameManager.StartScavenging() — not DeliveryZone.
+//  When a node fires OnDepleted, this spawner reactivates it
+//  at a new scattered position.
 //
 //  Attach to: a ResourceSpawner GameObject in the level scene
-//  Inspector : assign one prefab per ResourceType +
-//              assign SpawnPoint Transforms in the scene
+//  Inspector : set ResourceType, assign ResourceNodeMB refs
 // ============================================================
 
 using System.Collections.Generic;
@@ -27,139 +26,114 @@ using UnityEngine;
 
 public class ResourceSpawner : BaseSpawner
 {
-    [Header("Resource Node Prefabs")]
-    [SerializeField] private ResourceNodeMB m_ScrapsPrefab;
-    [SerializeField] private ResourceNodeMB m_RawMaterialsPrefab;
-    [SerializeField] private ResourceNodeMB m_HiEndPrefab;
+    [Header("Spawner Type")]
+    [Tooltip("This spawner only activates nodes of this type.")]
+    [SerializeField] private ResourceType m_ResourceType;
 
-    [Header("Spawn Points")]
-    [Tooltip("Assign empty GameObjects in the scene as candidate spawn positions.")]
-    [SerializeField] private List<Transform> m_SpawnPoints;
+    [Header("Nodes")]
+    [Tooltip("Assign the ResourceNodeMB GameObjects placed in the scene.")]
+    [SerializeField] private List<ResourceNodeMB> m_Nodes;
 
-    // Tracks spawned nodes so we can subscribe/unsubscribe OnDepleted
-    private readonly List<ResourceNodeMB> m_ActiveNodes = new List<ResourceNodeMB>();
     private LocationSO m_CurrentLocation;
 
-    #region Public API
-   
-    /// Clears existing nodes and spawns fresh ones for the given location.
+    // -------------------------------------------------------
+    //  Public API  (called by GameManager)
+    // -------------------------------------------------------
+
+    /// Reads abundance for this spawner's type and activates nodes accordingly.
     public void SpawnForLocation(LocationSO location)
     {
         m_CurrentLocation = location;
-        ClearNodes();
-        SpawnAllNodes();
+        m_SpawnCenter     = transform.position;
+
+        DeactivateAllNodes();
+
+        int abundance   = m_CurrentLocation.GetAvailability(m_ResourceType);
+        int activeCount = Mathf.Clamp(abundance, 0, m_Nodes.Count);
+
+        if (activeCount == 0)
+        {
+            Debug.Log($"[ResourceSpawner] {m_ResourceType}: abundance 0 — no nodes activated.");
+            return;
+        }
+
+        for (int i = 0; i < activeCount; i++)
+        {
+            Vector3 position = GetRandomSpawnPosition();
+            ActivateNode(m_Nodes[i], position);
+            m_ActiveEntities.Add(m_Nodes[i].gameObject);
+        }
+
+        Debug.Log($"[ResourceSpawner] {m_ResourceType}: activated {activeCount} node(s) " +
+                  $"(abundance {abundance}).");
     }
 
     public void ClearNodes()
     {
-        foreach (var node in m_ActiveNodes)
+        foreach (var node in m_Nodes)
         {
             if (node != null)
-            {
-                node.OnDepleted -= OnNodeDepleted;
-                Destroy(node.gameObject);
-            }
+                node.OnDepleted -= GetDepletedHandler(node);
         }
-        m_ActiveNodes.Clear();
+
+        DeactivateAllNodes();
         m_ActiveEntities.Clear();
     }
 
-    #endregion
+    // -------------------------------------------------------
+    //  Respawn on depletion
+    // -------------------------------------------------------
 
-    #region Spawning Logic
-    [ContextMenu("Spawn")]
-    private void SpawnAllNodes()
+    // Stores one named handler per node so subscribe/unsubscribe work correctly
+    private readonly Dictionary<ResourceNodeMB, System.Action> m_DepletedHandlers
+        = new Dictionary<ResourceNodeMB, System.Action>();
+
+    private System.Action GetDepletedHandler(ResourceNodeMB node)
     {
-        if (m_CurrentLocation == null) return;
-
-        var availablePoints = new List<Transform>(m_SpawnPoints);
-        Shuffle(availablePoints);
-
-        int pointIdx = 0;
-        foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
+        if (!m_DepletedHandlers.TryGetValue(node, out System.Action handler))
         {
-            int abundance = m_CurrentLocation.GetAvailability(type);
-            int count     = abundance * 2; // 0->0  1->2  2->4  3->6
-
-            ResourceNodeMB prefab = GetPrefab(type);
-            if (prefab == null)
-            {
-                Debug.LogWarning($"[ResourceSpawner] No prefab assigned for {type}.");
-                continue;
-            }
-
-            for (int i = 0; i < count && pointIdx < availablePoints.Count; i++, pointIdx++)
-            {
-                SpawnNode(prefab, type, availablePoints[pointIdx].position);
-            }
+            handler = () => OnNodeDepleted(node);
+            m_DepletedHandlers[node] = handler;
         }
-
-        Debug.Log($"[ResourceSpawner] Spawned {m_ActiveNodes.Count} nodes for '{m_CurrentLocation.locationName}'.");
+        return handler;
     }
 
-    private void SpawnNode(ResourceNodeMB prefab, ResourceType type, Vector3 position)
+    private void ActivateNode(ResourceNodeMB node, Vector3 position)
     {
-        ResourceNodeMB node = Instantiate(prefab, position, Quaternion.identity);
-        node.Initialise(type, 1);
-        node.OnDepleted += OnNodeDepleted;
-
-        m_ActiveNodes.Add(node);
-        m_ActiveEntities.Add(node.gameObject);
+        // Always unsubscribe first to avoid stacking handlers across activations
+        node.OnDepleted -= GetDepletedHandler(node);
+        node.Activate(position);
+        node.OnDepleted += GetDepletedHandler(node);
     }
 
-    #endregion
-
-    #region Respawning
-
-    private void OnNodeDepleted()
+    private void OnNodeDepleted(ResourceNodeMB node)
     {
-        m_ActiveNodes.RemoveAll(n => n == null || n.IsDepleted);
         m_ActiveEntities.RemoveAll(e => e == null);
 
-        if (m_CurrentLocation == null) return;
+        Vector3 newPosition = GetRandomSpawnPosition();
+        ActivateNode(node, newPosition);
 
-        foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
-        {
-            if (m_CurrentLocation.GetAvailability(type) == 0) continue;
-
-            ResourceNodeMB prefab = GetPrefab(type);
-            if (prefab == null) continue;
-
-            Vector3 spawnPos = GetRandomSpawnPosition();
-            SpawnNode(prefab, type, spawnPos);
-
-            Debug.Log($"[ResourceSpawner] Respawned {type} node.");
-            return;
-        }
+        Debug.Log($"[ResourceSpawner] {m_ResourceType} node respawned at {newPosition}.");
     }
 
-    #endregion
+    // -------------------------------------------------------
+    //  BaseSpawner implementation
+    // -------------------------------------------------------
 
-    #region Helpers & Overrides
-
+    /// Not used — ResourceSpawner activates existing scene nodes
+    /// rather than instantiating new ones.
     protected override void SpawnEntity() { }
 
-    private ResourceNodeMB GetPrefab(ResourceType type)
+    // -------------------------------------------------------
+    //  Helpers
+    // -------------------------------------------------------
+
+    private void DeactivateAllNodes()
     {
-        switch (type)
+        foreach (var node in m_Nodes)
         {
-            case ResourceType.Scraps:            return m_ScrapsPrefab;
-            case ResourceType.RawMaterials:      return m_RawMaterialsPrefab;
-            case ResourceType.HighEndComponents: return m_HiEndPrefab;
-            default:                             return null;
+            if (node != null)
+                node.Deactivate();
         }
     }
-
-    private void Shuffle<T>(List<T> list)
-    {
-        for (int i = list.Count - 1; i > 0; i--)
-        {
-            int j    = Random.Range(0, i + 1);
-            T   tmp  = list[i];
-            list[i]  = list[j];
-            list[j]  = tmp;
-        }
-    }
-
-    #endregion
 }

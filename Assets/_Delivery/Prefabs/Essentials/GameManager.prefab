@@ -64,6 +64,7 @@ GameObject:
   - component: {fileID: 7981259875700266424}
   - component: {fileID: 1208383526136569799}
   - component: {fileID: 6962256411045283843}
+  - component: {fileID: 1897733275189764433}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -113,7 +114,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: bcea89d50d86c114a962ac559b1ce91d, type: 2}
   - {fileID: 11400000, guid: 7bb02481af5d6024dab432dec73e190d, type: 2}
   m_WildcardPool: []
-  m_ResourceSpawner: {fileID: 0}
+  m_ResourceSpawners:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   m_BoardView: {fileID: 0}
   m_HUDView: {fileID: 0}
   m_Player: {fileID: 0}
@@ -135,6 +139,39 @@ MonoBehaviour:
   m_Scraps: 0
   m_RawMaterials: 0
   m_HighEndComponents: 0
+--- !u!114 &1897733275189764433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 901700724479851713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -902655590
+      Data2: 1282586925
+      Data3: 1708722083
+      Data4: 151324722
+    Path: event:/Music_Menu_Gamplay
+  Event: 
+  EventPlayTrigger: 1
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params:
+  - Name: MusicState
+    Value: 0
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &1426523719734428000
 GameObject:
   m_ObjectHideFlags: 0

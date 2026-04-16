@@ -21,6 +21,8 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
+using FMODUnity;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -42,7 +44,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<LocationSO> m_WildcardPool;
 
     [Header("Scene References")]
-    [SerializeField] private ResourceSpawner m_ResourceSpawner;
+    [SerializeField] private List<ResourceSpawner> m_ResourceSpawners;
     [SerializeField] private BoardView       m_BoardView;
     [SerializeField] private HUDView         m_HUDView;
     [SerializeField] private Player          m_Player;
@@ -125,7 +127,12 @@ public class GameManager : MonoBehaviour
         m_Player.GetInventory().OnChanged += RefreshHUD;
         RefreshHUD();
 
-        m_ResourceSpawner.SpawnForLocation(m_SelectedLocation);
+        foreach (var resourceSpawner in m_ResourceSpawners)
+        {
+            resourceSpawner.SpawnForLocation(m_SelectedLocation);
+
+        }
+
 
         Debug.Log($"[GameManager] Scavenging -> {m_SelectedLocation} | {m_SelectedContract}");
     }
@@ -169,7 +176,21 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator TransitionToScavenging()
     {
-        yield return new WaitForSeconds(m_StartDelay);
+        StudioEventEmitter emitter = GetComponent<StudioEventEmitter>();
+
+        float elapsed = 0f;
+
+        // Fade parameter from 0 to 1
+        while (elapsed < m_StartDelay)
+        {
+            elapsed += Time.deltaTime;
+            float value = Mathf.Lerp(0f, 1f, elapsed / m_StartDelay);
+            emitter.SetParameter("MusicState", value);
+            yield return null;
+        }
+
+        emitter.SetParameter("MusicState", 1f); // ensure final value
+        
         StartScavenging();
     }
 
@@ -190,7 +211,11 @@ public class GameManager : MonoBehaviour
     public void OnRunComplete()
     {
         m_Player.GetInventory().OnChanged -= RefreshHUD;
-        m_ResourceSpawner.ClearNodes();
+        foreach (var resourceSpawner in m_ResourceSpawners)
+        {
+            resourceSpawner.ClearNodes();
+        }
+
         StartCoroutine(TransitionToBoard());
     }
 

@@ -1,105 +1,125 @@
 // ============================================================
 //  ResourceNodeMB.cs
 //  Place in: Assets/_Delivery/Scripts/
-//  Layer   : MonoBehaviour — lives on resource node prefabs
+//  Layer   : Controller — MonoBehaviour, inherits BaseSpawner
 //
-//  A single collectable resource node in the world.
-//  Spawned and tracked by ResourceSpawner.
-//  Fires OnDepleted when fully collected so ResourceSpawner
-//  can respawn a replacement node.
+//  Lives on a fixed spawn point in the scene.
+//  When activated by ResourceSpawner, scatters N resource prefab
+//  instances around itself using BaseSpawner.m_SpawnRadius.
 //
-//  Collection is triggered by Player.OnResourceCollected()
-//  via a trigger collider on the node prefab.
+//  Each spawned prefab has a ResourcePickup script that calls
+//  OnPickupCollected() when the player collects it.
+//  When all pickups are collected, fires OnDepleted so
+//  ResourceSpawner can respawn this node.
+//
+//  Attach to: spawn point GameObjects in the level scene
+//  Inspector : assign ResourceType and pickup prefab
 // ============================================================
 
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class ResourceNodeMB : MonoBehaviour
+public class ResourceNodeMB : BaseSpawner
 {
-    [Header("Resource")]
-    [SerializeField] private ResourceType m_ResourceType;
-    [SerializeField] private int          m_AmountPerCollect = 1;
+    [Header("Node Settings")]
+    [SerializeField] private ResourceType  m_ResourceType;
+    [SerializeField] private ResourcePickup m_PickupPrefab;
 
-    [HideInInspector]
-    [SerializeField] private GameObject m_ActiveVisual, m_DepletedVisual;
+    [Header("Pickups Per Activation")]
+    [Tooltip("How many pickup prefabs are spawned when this node is activated.")]
+    [SerializeField] private int m_PickupsPerActivation = 3;
 
-    // Fired when the node has been fully collected.
-    // ResourceSpawner subscribes to this to trigger a respawn.
+    // Fired when all pickups have been collected
+    // ResourceSpawner subscribes to this
     public event Action OnDepleted;
 
-    private int  m_RemainingAmount;
-    private bool m_IsDepleted;
+    public ResourceType ResourceType => m_ResourceType;
 
-    public ResourceType Type            => m_ResourceType;
-    public bool         IsDepleted      => m_IsDepleted;
-    public int          RemainingAmount => m_RemainingAmount;
+    private readonly List<ResourcePickup> m_SpawnedPickups = new List<ResourcePickup>();
+    private bool m_IsActive = false;
 
-    #region Initialisation
+    // -------------------------------------------------------
+    //  Public API  (called by ResourceSpawner)
+    // -------------------------------------------------------
 
-    public void Initialise(ResourceType type, int totalAmount)
+    /// Moves this node to the given world position then spawns its pickups.
+    public void Activate(Vector3 position)
     {
-        m_ResourceType    = type;
-        m_RemainingAmount = totalAmount;
-        m_IsDepleted      = false;
-      //  RefreshVisuals();
+        transform.position = position;
+        m_SpawnCenter      = position;
+        m_IsActive         = true;
+
+        ClearPickups();
+        SpawnInitialBatch();
+
+        Debug.Log($"[ResourceNodeMB] Activated {m_ResourceType} node at {position}. " +
+                  $"Spawned {m_SpawnedPickups.Count} pickups.");
     }
 
-    #endregion
-
-    #region Collection Logic
-
-    public bool IsAvailable() => !m_IsDepleted && m_RemainingAmount > 0;
-
-    /// Collects one unit. Outputs what was collected.
-    /// Returns false if already depleted.
-    public bool TryCollect(out ResourceType type, out int amount)
+    /// Deactivates the node and clears all its pickups.
+    public void Deactivate()
     {
-        type   = m_ResourceType;
-        amount = 0;
+        m_IsActive = false;
+        ClearPickups();
+    }
 
-        if (!IsAvailable()) return false;
+    // -------------------------------------------------------
+    //  Called by ResourcePickup when collected by player
+    // -------------------------------------------------------
 
-        amount             = Mathf.Min(m_AmountPerCollect, m_RemainingAmount);
-        m_RemainingAmount -= amount;
+    public void OnPickupCollected(ResourcePickup pickup)
+    {
+        m_SpawnedPickups.Remove(pickup);
+        m_ActiveEntities.RemoveAll(e => e == null);
 
-        if (m_RemainingAmount <= 0)
+        if (m_SpawnedPickups.Count == 0 && m_IsActive)
         {
-            m_IsDepleted = true;
-          //  RefreshVisuals();
+            m_IsActive = false;
+            Debug.Log($"[ResourceNodeMB] {m_ResourceType} node depleted.");
             OnDepleted?.Invoke();
         }
-
-        return true;
     }
 
-    #endregion
+    // -------------------------------------------------------
+    //  BaseSpawner implementation
+    // -------------------------------------------------------
 
-    #region Trigger Events
-
-    private void OnTriggerEnter(Collider other)
+    protected override void SpawnEntity()
     {
-        if (!IsAvailable()) return;
-
-        if (other.TryGetComponent(out Player player))
+        if (m_PickupPrefab == null)
         {
-            if (TryCollect(out ResourceType type, out int amount))
-                player.OnResourceCollected(type, amount);
+            Debug.LogWarning($"[ResourceNodeMB] No pickup prefab assigned on {gameObject.name}.");
+            return;
         }
+
+        Vector3 spawnPos = GetRandomSpawnPosition();
+
+        ResourcePickup pickup = Instantiate(m_PickupPrefab, spawnPos, Quaternion.identity);
+        pickup.Initialise(this);
+
+        m_SpawnedPickups.Add(pickup);
+        m_ActiveEntities.Add(pickup.gameObject);
     }
 
-    #endregion
-
-    #region Visuals
-
-    private void RefreshVisuals()
+    // Override so activation count comes from m_PickupsPerActivation,
+    // not m_MaxActiveEntities from BaseSpawner
+    protected override void SpawnInitialBatch()
     {
-        if (m_ActiveVisual != null)
-            m_ActiveVisual.SetActive(!m_IsDepleted);
-
-        if (m_DepletedVisual != null)
-            m_DepletedVisual.SetActive(m_IsDepleted);
+        for (int i = 0; i < m_PickupsPerActivation; i++)
+            SpawnEntity();
     }
 
-    #endregion
+    // -------------------------------------------------------
+    //  Helpers
+    // -------------------------------------------------------
+
+    private void ClearPickups()
+    {
+        foreach (var pickup in m_SpawnedPickups)
+            if (pickup != null) Destroy(pickup.gameObject);
+
+        m_SpawnedPickups.Clear();
+        m_ActiveEntities.Clear();
+    }
 }
