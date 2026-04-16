@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     
-    private GameState m_CurrentState;                       // State the game is currently in
+    private Enums m_CurrentState;                       // State the game is currently in
     private WaitForSeconds m_StartWait;                     
     private WaitForSeconds m_EndWait;
     public float m_StartDelay = 3f;                         // The delay between the start of RoundStarting and RoundPlaying phases.
@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(gameObject);
             player = FindFirstObjectByType<Player>();
-            m_CurrentState = GameState.MainMenu;
+            m_CurrentState = Enums.MainMenu;
             m_StartWait = new WaitForSeconds (m_StartDelay);
             m_EndWait = new WaitForSeconds (m_EndDelay); 
         }
@@ -61,16 +61,16 @@ public class GameManager : MonoBehaviour
     {
         // Unfreeze time when starting the game
         Time.timeScale = 1f;
-        ChangeGameState(GameState.Game);
+        ChangeGameState(Enums.Game);
     }
 
-    private void ChangeGameState(GameState newState)
+    private void ChangeGameState(Enums newState)
     {
         m_CurrentState = newState;
 
         switch (m_CurrentState)
         {
-            case GameState.Game:
+            case Enums.Game:
                 GameStart();
                 break;
         }
@@ -157,15 +157,15 @@ public class GameManager : MonoBehaviour
     /// Called by Package when collected by the player.
     /// Increments delivery count and updates HUD.
     /// </summary>
-    public void RegisterDelivery()
-    {
-        m_PackagesDelivered++;
-        player.m_Packages--;
-        
-        HUD?.SetPackageProgress(m_PackagesDelivered, m_TotalPackagesToDeliver);
-        
-        Debug.Log($"Package collected! Progress: {m_PackagesDelivered}/{m_TotalPackagesToDeliver}");
-    }
+    // public void RegisterDelivery()
+    // {
+    //     m_PackagesDelivered++;
+    //     player.m_Packages--;
+    //     
+    //     HUD?.SetPackageProgress(m_PackagesDelivered, m_TotalPackagesToDeliver);
+    //     
+    //     Debug.Log($"Package collected! Progress: {m_PackagesDelivered}/{m_TotalPackagesToDeliver}");
+    // }
 
     public int GetDeliveryCount()
     {
